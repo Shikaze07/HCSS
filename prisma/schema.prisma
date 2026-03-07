@@ -1,0 +1,174 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum Role {
+  ADMIN
+  CLIENT
+  WORKER
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum AssignmentStatus {
+  ASSIGNED
+  ON_THE_WAY
+  ARRIVED
+  ACCEPTED
+  DECLINED
+  COMPLETED
+}
+
+enum PaymentMethod {
+  CASH
+  GCASH
+  CARD
+  BANK
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+enum DayOfWeek {
+  MON
+  TUE
+  WED
+  THU
+  FRI
+  SAT
+  SUN
+}
+
+model User {
+  id        String      @id @default(uuid())
+  firstName String
+  middleName String?
+  lastName  String
+  email     String      @unique
+  password  String
+  phone     String?
+  role      Role
+  status    UserStatus  @default(ACTIVE)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+ 
+  clientBookings   Booking[]           @relation("ClientBookings")
+  workerAssignments WorkerAssignment[]
+  availability     WorkerAvailability[]
+  reviewsGiven     Review[]            @relation("ClientReviews")
+  reviewsReceived  Review[]            @relation("WorkerReviews")
+  sessions         Session[]
+}
+
+model Service {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  price       Float
+  status      Boolean  @default(true)
+  duration    Int      @default(60) // in minutes
+  createdAt   DateTime @default(now())
+
+  bookings Booking[]
+}
+
+model Booking {
+  id          String        @id @default(uuid())
+  clientId    String
+  serviceId   String
+  bookingDate DateTime
+  startTime   DateTime
+  endTime     DateTime
+  address     String
+  latitude    Float?
+  longitude   Float?
+  duration    Int           // in minutes
+  totalAmount Float
+  status      BookingStatus @default(PENDING)
+  createdAt   DateTime      @default(now())
+
+
+  client      User      @relation("ClientBookings", fields: [clientId], references: [id])
+  service     Service   @relation(fields: [serviceId], references: [id])
+  assignment  WorkerAssignment?
+  payment     Payment?
+  review      Review?
+}
+
+model WorkerAssignment {
+  id         String           @id @default(uuid())
+  bookingId  String           @unique
+  workerId   String
+  assignedAt DateTime         @default(now())
+  status     AssignmentStatus @default(ASSIGNED)
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+  worker  User    @relation(fields: [workerId], references: [id])
+}
+
+model WorkerAvailability {
+  id        String    @id @default(uuid())
+  workerId  String
+  day       DayOfWeek
+  startTime DateTime
+  endTime   DateTime
+
+  worker User @relation(fields: [workerId], references: [id])
+}
+
+model Payment {
+  id            String        @id @default(uuid())
+  bookingId     String        @unique
+  amount        Float
+  method        PaymentMethod
+  paymentStatus PaymentStatus @default(PENDING)
+  paidAt        DateTime?
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  bookingId String   @unique
+  clientId  String
+  workerId  String
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+  client  User    @relation("ClientReviews", fields: [clientId], references: [id])
+  worker  User    @relation("WorkerReviews", fields: [workerId], references: [id])
+}
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
