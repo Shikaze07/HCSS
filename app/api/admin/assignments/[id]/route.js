@@ -37,9 +37,23 @@ export async function PATCH(req, { params }) {
 export async function DELETE(req, { params }) {
     try {
         const { id } = await params
-        await prisma.workerAssignment.delete({
+        // Get the bookingId before deletion to update the booking status
+        const assignment = await prisma.workerAssignment.findUnique({
             where: { id },
-        })
+            select: { bookingId: true }
+        });
+
+        if (assignment) {
+            await prisma.workerAssignment.delete({
+                where: { id },
+            });
+
+            await prisma.booking.update({
+                where: { id: assignment.bookingId },
+                data: { status: "PENDING" }
+            });
+        }
+
         return NextResponse.json({ message: "Assignment deleted successfully" })
     } catch (error) {
         console.error("Error deleting assignment:", error)

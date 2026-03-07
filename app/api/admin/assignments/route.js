@@ -68,6 +68,12 @@ export async function POST(req) {
             },
         })
 
+        // Update booking status separately to be robust
+        await prisma.booking.update({
+            where: { id: bookingId },
+            data: { status: "CONFIRMED" }
+        })
+
         return NextResponse.json(assignment)
     } catch (error) {
         console.error("Error creating assignment:", error)

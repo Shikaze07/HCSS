@@ -19,13 +19,13 @@ export function BookingList({ bookings, selectedBooking }) {
     }
 
     return (
-        <div className="space-y-3 overflow-y-auto max-h-[600px] pr-2 scrollbar-thin scrollbar-thumb-primary/10">
+        <div className="space-y-5 overflow-y-auto max-h-[700px] pr-2 scrollbar-thin scrollbar-thumb-primary/10">
             {bookings.map((booking) => (
                 <Link key={booking.id} href={`/client/service-tracking/${booking.id}`}>
                     <Card
                         className={cn(
-                            "cursor-pointer transition-all duration-300 hover:shadow-md border-2",
-                            selectedBooking?.id === booking.id ? "border-primary bg-primary/5 shadow-sm" : "border-transparent hover:border-primary/30"
+                            "cursor-pointer transition-all duration-300 hover:shadow-md border-2 mb-5",
+                            selectedBooking?.id === booking.id ? "border-primary bg-primary/5 shadow-sm" : "border-2 hover:border-primary/30"
                         )}
                     >
                         <CardContent className="p-4">

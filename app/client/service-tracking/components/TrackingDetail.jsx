@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { User, Phone, Mail, Clock, MapPin, Loader2 } from "lucide-react"
 import { StatusTimeline } from "./StatusTimeline"
+import { ReviewSection } from "./ReviewSection"
 
 export function TrackingDetail({ booking }) {
     if (!booking) {
@@ -18,8 +19,8 @@ export function TrackingDetail({ booking }) {
         const assignmentStatus = booking.assignment?.status
         const bookingStatus = booking.status
 
-        if (bookingStatus === "COMPLETED") return 5
-        if (bookingStatus === "IN_PROGRESS") return 4
+        if (bookingStatus === "COMPLETED" || assignmentStatus === "COMPLETED") return 5
+        if (bookingStatus === "IN_PROGRESS" || assignmentStatus === "IN_PROGRESS") return 4
 
         switch (assignmentStatus) {
             case "ARRIVED": return 3
@@ -142,6 +143,10 @@ export function TrackingDetail({ booking }) {
                         </div>
                     </div>
                 </div>
+
+                {booking.status === "COMPLETED" && (
+                    <ReviewSection booking={booking} />
+                )}
             </CardContent>
         </Card>
     )

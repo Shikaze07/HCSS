@@ -51,7 +51,7 @@ export function StatusTimeline({ currentStepIndex }) {
                             <div className={cn(
                                 "z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border-4 transition-all duration-500",
                                 isCompleted ? "bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/25 scale-110" : "bg-background border-muted text-muted-foreground",
-                                isCurrent && "animate-pulse ring-4 ring-primary/20 ring-offset-2"
+                                isCurrent && index !== 5 && "animate-pulse ring-4 ring-primary/20 ring-offset-2"
                             )}>
                                 {isCompleted && index < currentStepIndex ? (
                                     <CheckCircle2 className="h-7 w-7" />

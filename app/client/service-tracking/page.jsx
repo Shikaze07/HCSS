@@ -71,9 +71,8 @@ export default function ServiceTrackingPage() {
                 </p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Bookings List */}
-                <div className="lg:col-span-1 space-y-4">
+            <div className="max-w-3xl mx-auto w-full">
+                <div className="space-y-6">
                     <h2 className="text-xl font-bold flex items-center gap-2">
                         Your Bookings
                         <Badge variant="secondary" className="rounded-full">{bookings.length}</Badge>
@@ -83,8 +82,6 @@ export default function ServiceTrackingPage() {
                         selectedBooking={selectedBooking}
                     />
                 </div>
-
-                7
             </div>
 
             <style jsx global>{`

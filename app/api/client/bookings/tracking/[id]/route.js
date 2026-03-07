@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth"
 
 export async function GET(req, { params }) {
     try {
+        const { id } = await params;
         const session = await getSession()
 
         if (!session || session.user.role !== "CLIENT") {
@@ -12,11 +13,12 @@ export async function GET(req, { params }) {
 
         const booking = await prisma.booking.findFirst({
             where: {
-                id: params.id,
+                id: id,
                 clientId: session.user.id,
             },
             include: {
                 service: true,
+                review: true,
                 assignment: {
                     include: {
                         worker: {
