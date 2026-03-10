@@ -21,8 +21,10 @@ CREATE TABLE `Service` (
     `id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
     `description` VARCHAR(191) NULL,
+    `image` VARCHAR(191) NULL,
     `price` DOUBLE NOT NULL,
     `status` BOOLEAN NOT NULL DEFAULT true,
+    `duration` INTEGER NOT NULL DEFAULT 60,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     PRIMARY KEY (`id`)
@@ -37,6 +39,9 @@ CREATE TABLE `Booking` (
     `startTime` DATETIME(3) NOT NULL,
     `endTime` DATETIME(3) NOT NULL,
     `address` VARCHAR(191) NOT NULL,
+    `latitude` DOUBLE NULL,
+    `longitude` DOUBLE NULL,
+    `duration` INTEGER NOT NULL,
     `totalAmount` DOUBLE NOT NULL,
     `status` ENUM('PENDING', 'CONFIRMED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED') NOT NULL DEFAULT 'PENDING',
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
@@ -50,7 +55,7 @@ CREATE TABLE `WorkerAssignment` (
     `bookingId` VARCHAR(191) NOT NULL,
     `workerId` VARCHAR(191) NOT NULL,
     `assignedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `status` ENUM('ASSIGNED', 'ACCEPTED', 'DECLINED', 'COMPLETED') NOT NULL DEFAULT 'ASSIGNED',
+    `status` ENUM('ASSIGNED', 'ON_THE_WAY', 'ARRIVED', 'IN_PROGRESS', 'ACCEPTED', 'DECLINED', 'COMPLETED') NOT NULL DEFAULT 'ASSIGNED',
 
     UNIQUE INDEX `WorkerAssignment_bookingId_key`(`bookingId`),
     PRIMARY KEY (`id`)
@@ -94,6 +99,15 @@ CREATE TABLE `Review` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+-- CreateTable
+CREATE TABLE `Session` (
+    `id` VARCHAR(191) NOT NULL,
+    `userId` VARCHAR(191) NOT NULL,
+    `expiresAt` DATETIME(3) NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 -- AddForeignKey
 ALTER TABLE `Booking` ADD CONSTRAINT `Booking_clientId_fkey` FOREIGN KEY (`clientId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
@@ -120,3 +134,6 @@ ALTER TABLE `Review` ADD CONSTRAINT `Review_clientId_fkey` FOREIGN KEY (`clientI
 
 -- AddForeignKey
 ALTER TABLE `Review` ADD CONSTRAINT `Review_workerId_fkey` FOREIGN KEY (`workerId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Session` ADD CONSTRAINT `Session_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
