@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 const PROTECTED_ROUTES = ["/admin", "/client", "/worker", "/dashboard"];
 const AUTH_ROUTES = ["/login", "/signup"];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
     const cookieStore = await cookies();
     const sessionId = cookieStore.get("session_id")?.value;
