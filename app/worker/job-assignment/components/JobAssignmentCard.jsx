@@ -35,7 +35,8 @@ export function JobAssignmentCard({ assignment, onStatusUpdate }) {
             });
 
             if (res.ok) {
-                toast.success(`Job ${newStatus.toLowerCase()} successfully.`);
+                // toast.success(`Job ${newStatus.toLowerCase()} successfully.`);
+                 toast.success(`Job status updated successfully.`);
                 onStatusUpdate();
             } else {
                 const error = await res.json();

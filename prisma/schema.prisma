@@ -91,6 +91,7 @@ model Service {
   id          String   @id @default(uuid())
   name        String
   description String?
+  image       String?
   price       Float
   status      Boolean  @default(true)
   duration    Int      @default(60) // in minutes

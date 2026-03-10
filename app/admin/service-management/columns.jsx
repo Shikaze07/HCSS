@@ -14,6 +14,24 @@ import { MoreHorizontal } from "lucide-react"
 
 export const columns = (onEdit, onDelete) => [
     {
+        accessorKey: "image",
+        header: "Image",
+        cell: ({ row }) => {
+            const imageUrl = row.getValue("image")
+            return (
+                <div className="w-12 h-12 rounded-lg overflow-hidden border border-[#e8e0d5] bg-muted/30">
+                    {imageUrl ? (
+                        <img src={imageUrl} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center text-muted-foreground/30">
+                            No Img
+                        </div>
+                    )}
+                </div>
+            )
+        }
+    },
+    {
         accessorKey: "name",
         header: "Service Name",
     },

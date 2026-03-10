@@ -21,7 +21,7 @@ export async function GET() {
 export async function POST(req) {
     try {
         const body = await req.json()
-        const { name, description, price, duration } = body
+        const { name, description, price, duration, image } = body
 
         if (!name || !price) {
             return NextResponse.json(
@@ -34,6 +34,7 @@ export async function POST(req) {
             data: {
                 name,
                 description,
+                image,
                 price: parseFloat(price),
                 duration: parseInt(duration) || 60,
                 status: true,

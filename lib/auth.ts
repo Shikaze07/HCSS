@@ -6,8 +6,9 @@ import prisma from "./prisma";
 import type { Session, User } from "../generated/prisma/client";
 
 const SESSION_COOKIE_NAME = "session_id";
+const ROLE_COOKIE_NAME = "user_role";
 
-export async function createSession(userId: string) {
+export async function createSession(userId: string, role: string) {
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
     const session = await prisma.session.create({
         data: {
@@ -25,6 +26,14 @@ export async function createSession(userId: string) {
         path: "/",
     });
 
+    cookieStore.set(ROLE_COOKIE_NAME, role, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        expires: expiresAt,
+        sameSite: "lax",
+        path: "/",
+    });
+
     return session;
 }
 
@@ -32,13 +41,16 @@ export async function deleteSession() {
     const cookieStore = await cookies();
     const sessionId = cookieStore.get(SESSION_COOKIE_NAME)?.value;
 
+    // Always delete cookies first
+    cookieStore.delete(SESSION_COOKIE_NAME);
+    cookieStore.delete(ROLE_COOKIE_NAME);
+
     if (sessionId) {
         await prisma.session.delete({
             where: { id: sessionId },
         }).catch(() => {
-            // Ignore if session already deleted or not found
+            // Ignore if session not found in DB
         });
-        cookieStore.delete(SESSION_COOKIE_NAME);
     }
 }
 

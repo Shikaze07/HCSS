@@ -5,13 +5,14 @@ export async function PATCH(req, { params }) {
     try {
         const { id } = await params
         const body = await req.json()
-        const { name, description, price, status } = body
+        const { name, description, price, status, duration, image } = body
 
         const updatedService = await prisma.service.update({
             where: { id },
             data: {
                 name,
                 description,
+                image,
                 price: parseFloat(price),
                 duration: parseInt(duration) || 60,
                 status: status === "ACTIVE" || status === true,

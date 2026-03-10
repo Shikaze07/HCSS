@@ -54,7 +54,7 @@ export function NavUser({
         method: "POST",
       })
       localStorage.setItem("logout-event", Date.now().toString())
-      window.location.href = "/login"
+      window.location.href = "/"
     } catch (error) {
       console.error("Logout failed:", error)
     }

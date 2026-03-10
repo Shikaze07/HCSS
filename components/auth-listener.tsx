@@ -14,8 +14,21 @@ export function AuthListener() {
             }
         }
 
+        // Handle bfcache (back-forward cache) restorations
+        const handlePageShow = (event: PageTransitionEvent) => {
+            if (event.persisted) {
+                // If page was restored from cache, refresh to trigger middleware check
+                router.refresh()
+            }
+        }
+
         window.addEventListener("storage", handleStorageChange)
-        return () => window.removeEventListener("storage", handleStorageChange)
+        window.addEventListener("pageshow", handlePageShow)
+
+        return () => {
+            window.removeEventListener("storage", handleStorageChange)
+            window.removeEventListener("pageshow", handlePageShow)
+        }
     }, [router])
 
     return null

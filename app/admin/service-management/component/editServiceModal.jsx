@@ -20,17 +20,20 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { toast } from "sonner"
-import { Sparkles, AlignLeft, Banknote, Clock, Settings2, CheckCircle2, AlertCircle } from "lucide-react"
+import { Sparkles, AlignLeft, Banknote, Clock, Settings2, CheckCircle2, AlertCircle, Upload, X, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export function EditServiceModal({ service, open, setOpen, onServiceUpdated }) {
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [isUploading, setIsUploading] = useState(false)
+    const [imagePreview, setImagePreview] = useState(null)
     const [formData, setFormData] = useState({
         name: "",
         description: "",
         price: "",
         duration: "",
         status: "ACTIVE",
+        image: "",
     })
 
     useEffect(() => {
@@ -41,7 +44,9 @@ export function EditServiceModal({ service, open, setOpen, onServiceUpdated }) {
                 price: service.price?.toString() || "",
                 duration: service.duration?.toString() || "60",
                 status: service.status ? "ACTIVE" : "INACTIVE",
+                image: service.image || "",
             })
+            setImagePreview(service.image || null)
         }
     }, [service])
 
@@ -58,6 +63,48 @@ export function EditServiceModal({ service, open, setOpen, onServiceUpdated }) {
             ...prev,
             status: value,
         }))
+    }
+
+    const handleImageChange = async (e) => {
+        const file = e.target.files[0]
+        if (!file) return
+
+        // Preview
+        const reader = new FileReader()
+        reader.onloadend = () => {
+            setImagePreview(reader.result)
+        }
+        reader.readAsDataURL(file)
+
+        // Upload
+        try {
+            setIsUploading(true)
+            const uploadData = new FormData()
+            uploadData.append("file", file)
+
+            const res = await fetch("/api/upload", {
+                method: "POST",
+                body: uploadData,
+            })
+
+            const data = await res.json()
+            if (res.ok) {
+                setFormData(prev => ({ ...prev, image: data.url }))
+                toast.success("Image updated successfully")
+            } else {
+                toast.error(data.error || "Image upload failed")
+            }
+        } catch (error) {
+            console.error("Image upload error:", error)
+            toast.error("An error occurred during image upload")
+        } finally {
+            setIsUploading(false)
+        }
+    }
+
+    const removeImage = () => {
+        setImagePreview(null)
+        setFormData(prev => ({ ...prev, image: "" }))
     }
 
     const handleSubmit = async (e) => {
@@ -209,19 +256,73 @@ export function EditServiceModal({ service, open, setOpen, onServiceUpdated }) {
                         </div>
                     </div>
 
+                    {/* Service Image Section */}
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-2">
+                            <span className="p-1 px-2 text-[10px] font-bold uppercase tracking-wider bg-primary/10 text-primary rounded">03</span>
+                            <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Service Image</h3>
+                            <Separator className="flex-1" />
+                        </div>
+
+                        <div className="space-y-4">
+                            {imagePreview ? (
+                                <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-[#e8e0d5]">
+                                    <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                                    <Button
+                                        type="button"
+                                        variant="destructive"
+                                        size="icon"
+                                        className="absolute top-2 right-2 h-8 w-8 rounded-full shadow-lg"
+                                        onClick={removeImage}
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </Button>
+                                    {isUploading && (
+                                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                            <Loader2 className="h-8 w-8 text-white animate-spin" />
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="space-y-2">
+                                    <Label
+                                        htmlFor="edit-image-upload"
+                                        className="flex flex-col items-center justify-center w-full aspect-video border-2 border-dashed border-[#e8e0d5] rounded-xl hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer group"
+                                    >
+                                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                            <div className="p-4 bg-primary/5 rounded-full group-hover:scale-110 transition-transform mb-3">
+                                                <Upload className="h-6 w-6 text-primary/70" />
+                                            </div>
+                                            <p className="text-sm font-semibold text-muted-foreground group-hover:text-primary transition-colors">Click to upload new image</p>
+                                            <p className="text-xs text-muted-foreground mt-1 tracking-tight">SVG, PNG, JPG (max. 5MB)</p>
+                                        </div>
+                                        <input
+                                            id="edit-image-upload"
+                                            type="file"
+                                            accept="image/*"
+                                            className="hidden"
+                                            onChange={handleImageChange}
+                                            disabled={isUploading}
+                                        />
+                                    </Label>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
                     <div className="flex gap-3 pt-6 justify-end bg-background sticky bottom-0 border-t mt-4 p-2 -mx-2">
                         <Button
                             type="button"
                             variant="ghost"
                             onClick={() => setOpen(false)}
-                            disabled={isSubmitting}
+                            disabled={isSubmitting || isUploading}
                             className="hover:bg-red-50 hover:text-red-600 transition-colors"
                         >
                             Cancel
                         </Button>
                         <Button
                             type="submit"
-                            disabled={isSubmitting}
+                            disabled={isSubmitting || isUploading}
                             className="min-w-[140px] shadow-lg shadow-primary/20"
                         >
                             {isSubmitting ? "Updating..." : "Save Changes"}
