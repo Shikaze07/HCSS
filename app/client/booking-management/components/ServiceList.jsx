@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -57,7 +58,21 @@ export function ServiceList() {
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {services.map((service) => (
-                <Card key={service.id} className="flex flex-col h-full hover:shadow-lg transition-shadow">
+                <Card key={service.id} className="flex flex-col h-full hover:shadow-lg transition-shadow overflow-hidden">
+                    <div className="relative aspect-video w-full">
+                        {service.image ? (
+                            <Image
+                                src={service.image}
+                                alt={service.name}
+                                fill
+                                className="object-cover"
+                            />
+                        ) : (
+                            <div className="flex h-full w-full items-center justify-center bg-muted">
+                                <span className="text-muted-foreground">No Image</span>
+                            </div>
+                        )}
+                    </div>
                     <CardHeader>
                         <CardTitle className="text-xl">{service.name}</CardTitle>
                         <CardDescription className="line-clamp-2 min-h-[40px]">
