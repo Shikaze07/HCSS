@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
+import crypto from "crypto";
 
 export async function POST(req) {
     try {
@@ -11,22 +10,49 @@ export async function POST(req) {
             return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
         }
 
-        const bytes = await file.arrayBuffer();
-        const buffer = Buffer.from(bytes);
+        const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+        const apiKey = process.env.CLOUDINARY_API_KEY;
+        const apiSecret = process.env.CLOUDINARY_API_SECRET;
 
-        // Create a unique filename
-        const filename = `${Date.now()}-${file.name.replace(/\s+/g, "-")}`;
-        const uploadDir = path.join(process.cwd(), "public", "uploads", "services");
+        if (!cloudName || !apiKey || !apiSecret) {
+            return NextResponse.json({ error: "Cloudinary configuration missing" }, { status: 500 });
+        }
 
-        // Ensure directory exists
-        await mkdir(uploadDir, { recursive: true });
+        // Build signed upload parameters
+        const timestamp = Math.round(Date.now() / 1000);
+        const folder = "hcss/services";
 
-        const filePath = path.join(uploadDir, filename);
-        await writeFile(filePath, buffer);
+        // Create signature: sign params alphabetically, then append secret
+        const paramsToSign = `folder=${folder}&timestamp=${timestamp}${apiSecret}`;
+        const signature = crypto
+            .createHash("sha1")
+            .update(paramsToSign)
+            .digest("hex");
 
-        // Return the public URL
-        const publicUrl = `/uploads/services/${filename}`;
-        return NextResponse.json({ url: publicUrl });
+        // Build form data for Cloudinary
+        const uploadForm = new FormData();
+        uploadForm.append("file", file);
+        uploadForm.append("api_key", apiKey);
+        uploadForm.append("timestamp", String(timestamp));
+        uploadForm.append("signature", signature);
+        uploadForm.append("folder", folder);
+
+        const cloudinaryRes = await fetch(
+            `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+            { method: "POST", body: uploadForm }
+        );
+
+        const data = await cloudinaryRes.json();
+
+        if (!cloudinaryRes.ok) {
+            console.error("Cloudinary Detailed Error:", JSON.stringify(data, null, 2));
+            return NextResponse.json(
+                { error: data?.error?.message || "Cloudinary upload failed" },
+                { status: cloudinaryRes.status }
+            );
+        }
+
+        return NextResponse.json({ url: data.secure_url });
     } catch (error) {
         console.error("Upload error:", error);
         return NextResponse.json({ error: "Upload failed" }, { status: 500 });
