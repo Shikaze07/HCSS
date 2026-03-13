@@ -328,7 +328,7 @@ const HomePage = () => {
                 <div className="w-0.5 h-10 bg-amber-600" />
                 <div>
                   <p className="text-sm font-bold text-[#2c1810]">ANNA L.</p>
-                  <p className="text-[10px] tracking-wider text-[#8a7060] font-medium uppercase">BGC, TAGUIG</p>
+                  <p className="text-[10px] tracking-wider text-[#8a7060] font-medium uppercase">Koronadal City, South Cotabato</p>
                 </div>
               </div>
             </div>

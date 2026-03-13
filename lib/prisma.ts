@@ -19,7 +19,7 @@ const adapter =
     password: process.env.DB_PASSWORD!,
     database: process.env.DB_NAME!,
     connectionLimit: 10,
-    connectTimeout: 10000,
+    connectTimeout: 30000,
   });
 
 const prisma = globalForPrisma.prisma ?? new PrismaClient({ adapter });
