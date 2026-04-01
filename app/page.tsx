@@ -515,7 +515,7 @@ const HomePage = () => {
                 <div className="absolute bottom-[-10%] left-[-10%] w-48 h-48 border border-amber-600/10 rounded-full" />
 
                 <div className="relative z-10 w-full max-w-sm">
-                  <div className="text-7xl mb-12 text-center drop-shadow-xl animate-bounce">🏠✨</div>
+
                   <Card className="bg-white rounded-none border-none shadow-2xl p-8 mb-6 -rotate-2 transform hover:rotate-0 transition-transform duration-500">
                     <div className="flex justify-between items-center mb-6">
                       <span className="text-[9px] font-bold tracking-[2px] text-amber-600 uppercase">Booking Status</span>
