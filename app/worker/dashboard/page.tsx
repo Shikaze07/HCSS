@@ -87,7 +87,7 @@ export default function WorkerDashboardPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-foreground flex items-center gap-3">
-                        Cleaner Shift Hub
+                        Dashboard
                         <Badge variant="outline" className="text-xs font-semibold">
                             On Duty
                         </Badge>

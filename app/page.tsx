@@ -17,7 +17,7 @@ import {
   Smartphone,
   Zap,
   House,
-    Bath,
+  Bath,
   Package,
   Check,
   MessageSquare
@@ -241,7 +241,7 @@ const HomePage = () => {
             )}
             <Button
               onClick={handleBookingClick}
-              className="bg-[#2c1810] text-[#faf8f5] hover:bg-amber-700 transition-all duration-300 rounded-none h-10 px-6 font-bold tracking-widest text-[11px] uppercase shadow-md shadow-black/5 hover:shadow-amber-500/20 hover:-translate-y-0.5"
+              className="bg-[#2c1810] text-[#faf8f5]  transition-all duration-300 rounded-none h-10 px-6 font-bold tracking-widest text-[11px] uppercase shadow-md shadow-black/5 hover:shadow-amber-500/20 hover:-translate-y-0.5"
             >
               {user?.role === 'CLIENT' ? 'Book Now' : 'Sign Up & Book'}
             </Button>
