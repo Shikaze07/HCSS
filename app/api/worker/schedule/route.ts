@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
+import { DAYS, availabilityTime } from "@/lib/worker-availability";
 
 export async function GET() {
     try {
@@ -80,32 +81,50 @@ export async function POST(req: Request) {
         const body = await req.json();
         const { schedules } = body; // Array of { day: 'MON', enabled: boolean, startHour: 8, endHour: 17 }
 
-        if (!Array.isArray(schedules)) {
+        if (!Array.isArray(schedules) || schedules.length === 0 || schedules.length > 7) {
             return NextResponse.json(
                 { error: "Invalid schedule format" },
                 { status: 400 }
             );
         }
 
-        // Remove existing availability and replace with new
-        await prisma.workerAvailability.deleteMany({
-            where: { workerId },
-        });
-
-        // Every day is saved so unchecked days stay unchecked; a day off is stored with startTime === endTime
+        const seenDays = new Set<string>();
         for (const item of schedules) {
-            const startTime = new Date(1970, 0, 1, item.startHour || 8, 0);
-            const endTime = item.enabled ? new Date(1970, 0, 1, item.endHour || 17, 0) : startTime;
+            const label = typeof item?.day === "string" ? item.day : "a day";
+            if (!DAYS.includes(item?.day)) {
+                return NextResponse.json({ error: `Unknown day: ${label}` }, { status: 400 });
+            }
+            if (seenDays.has(item.day)) {
+                return NextResponse.json({ error: `${label} is listed more than once` }, { status: 400 });
+            }
+            seenDays.add(item.day);
 
-            await prisma.workerAvailability.create({
-                data: {
-                    workerId,
-                    day: item.day,
-                    startTime,
-                    endTime,
-                },
-            });
+            if (typeof item.enabled !== "boolean") {
+                return NextResponse.json({ error: `Choose whether you work on ${label}` }, { status: 400 });
+            }
+            if (!item.enabled) continue;
+
+            const { startHour, endHour } = item;
+            if (!Number.isInteger(startHour) || !Number.isInteger(endHour) || startHour < 0 || endHour > 24) {
+                return NextResponse.json({ error: `Invalid hours for ${label}` }, { status: 400 });
+            }
+            if (endHour <= startHour) {
+                return NextResponse.json({ error: `End time must be after start time on ${label}` }, { status: 400 });
+            }
         }
+
+        // Every day is saved so unchecked days stay unchecked; a day off is stored with startTime === endTime.
+        // Replace in one transaction so a failed save never wipes the schedule.
+        await prisma.$transaction([
+            prisma.workerAvailability.deleteMany({ where: { workerId } }),
+            prisma.workerAvailability.createMany({
+                data: schedules.map((item) => {
+                    const startTime = availabilityTime(item.enabled ? item.startHour : 0);
+                    const endTime = item.enabled ? availabilityTime(item.endHour) : startTime;
+                    return { workerId, day: item.day, startTime, endTime };
+                }),
+            }),
+        ]);
 
         const updatedAvailability = await prisma.workerAvailability.findMany({
             where: { workerId },

@@ -14,7 +14,8 @@ const formatDuration = (s) => {
 }
 
 // Shows the client's location as a red pin, plus a route from the worker's current position.
-export function RouteMap({ latitude, longitude, address }) {
+// Pass showRoute={false} to show only the pin.
+export function RouteMap({ latitude, longitude, address, showRoute = true }) {
     const containerRef = useRef(null)
     const mapRef = useRef(null)
     const layersRef = useRef({ route: null, origin: null })
@@ -119,12 +120,12 @@ export function RouteMap({ latitude, longitude, address }) {
         <div className="space-y-3">
             <div ref={containerRef} className="relative z-0 h-64 w-full rounded-lg border overflow-hidden" />
 
-            <div className="flex flex-wrap items-center gap-2">
+            {showRoute && <div className="flex flex-wrap items-center gap-2">
                 <Button type="button" size="sm" variant="secondary" className="h-8 gap-1 ml-auto" onClick={locateMe} disabled={busy}>
                     {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <LocateFixed className="w-3.5 h-3.5" />}
                     {origin ? "Update my location" : "Show route from me"}
                 </Button>
-            </div>
+            </div>}
 
             {error && <p className="text-xs text-rose-600">{error}</p>}
 

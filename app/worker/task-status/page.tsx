@@ -16,8 +16,7 @@ import {
     ChevronRight,
     Loader2,
     Calendar,
-    Check,
-    ArrowRight
+    Check
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -454,23 +453,10 @@ export default function TaskStatusPage() {
                                     <span>{b.address}</span>
                                 </div>
                                 {b.latitude != null && b.longitude != null ? (
-                                    <RouteMap latitude={b.latitude} longitude={b.longitude} address={b.address} />
+                                    <RouteMap latitude={b.latitude} longitude={b.longitude} address={b.address} showRoute={false} />
                                 ) : (
                                     <p className="text-xs text-muted-foreground">The client did not pin a map location for this booking.</p>
                                 )}
-                                <a
-                                    href={`https://www.google.com/maps/search/?api=1&query=${
-                                        b.latitude != null && b.longitude != null
-                                            ? `${b.latitude},${b.longitude}`
-                                            : encodeURIComponent(b.address)
-                                    }`}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="text-xs text-primary font-bold flex items-center gap-1 hover:underline"
-                                >
-                                    Open in Google Maps
-                                    <ArrowRight className="w-3 h-3" />
-                                </a>
                             </div>
                         </CardContent>
                     </Card>

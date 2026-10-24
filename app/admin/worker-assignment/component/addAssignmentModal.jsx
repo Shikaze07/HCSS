@@ -19,6 +19,14 @@ import {
 } from "@/components/ui/select"
 import { toast } from "sonner"
 
+// Mirrors the server-side check so unassignable bookings are greyed out up front
+const getBookingProblem = (booking) => {
+    if (booking.status === "CANCELLED") return "Cancelled"
+    if (booking.status === "COMPLETED") return "Completed"
+    if (booking.startTime && new Date(booking.startTime).getTime() < Date.now()) return "Already passed"
+    return null
+}
+
 export function AddAssignmentModal({ onAssignmentAdded }) {
     const [open, setOpen] = useState(false)
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -135,11 +143,15 @@ export function AddAssignmentModal({ onAssignmentAdded }) {
                                 {bookings.length === 0 ? (
                                     <SelectItem disabled value="none">No unassigned bookings</SelectItem>
                                 ) : (
-                                    bookings.map((booking) => (
-                                        <SelectItem key={booking.id} value={booking.id}>
-                                            {booking.client?.firstName || "Unknown"} {booking.client?.lastName || "Client"} - {booking.service?.name || "Unknown Service"} ({booking.bookingDate ? new Date(booking.bookingDate).toLocaleDateString() : "No Date"})
-                                        </SelectItem>
-                                    ))
+                                    bookings.map((booking) => {
+                                        const problem = getBookingProblem(booking)
+                                        return (
+                                            <SelectItem key={booking.id} value={booking.id} disabled={!!problem}>
+                                                {booking.client?.firstName || "Unknown"} {booking.client?.lastName || "Client"} - {booking.service?.name || "Unknown Service"} ({booking.startTime ? new Date(booking.startTime).toLocaleString([], { dateStyle: "medium", timeStyle: "short" }) : "No Date"})
+                                                {problem && <span className="text-xs text-muted-foreground"> ({problem})</span>}
+                                            </SelectItem>
+                                        )
+                                    })
                                 )}
                             </SelectContent>
                         </Select>
@@ -171,7 +183,7 @@ export function AddAssignmentModal({ onAssignmentAdded }) {
                         </Select>
                         {formData.bookingId
                             ? workers.length > 0 && workers.every((w) => w.available === false) && (
-                                  <p className="text-xs text-rose-600">No workers are available for this booking's schedule.</p>
+                                  <p className="text-xs text-rose-600">No workers are available at this booking&apos;s time.</p>
                               )
                             : (
                                   <p className="text-xs text-muted-foreground">Select a booking first to see which workers are available.</p>

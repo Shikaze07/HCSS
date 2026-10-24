@@ -74,9 +74,10 @@ export default function WorkerSchedulePage() {
                     const newConfig = Object.fromEntries(
                         Object.entries(scheduleConfig).map(([day, val]) => [day, { ...val, enabled: false }])
                     );
+                    // Hours are stored as UTC clock times, so read them without the browser's timezone
                     data.availability.forEach((avail: any) => {
-                        const start = new Date(avail.startTime).getHours();
-                        const end = new Date(avail.endTime).getHours();
+                        const start = new Date(avail.startTime).getUTCHours();
+                        const end = new Date(avail.endTime).getUTCHours();
                         if (newConfig[avail.day] && end > start) {
                             newConfig[avail.day] = { enabled: true, start, end };
                         }
@@ -98,7 +99,17 @@ export default function WorkerSchedulePage() {
         fetchSchedule();
     }, []);
 
+    const enabledDays = Object.values(scheduleConfig).filter((d) => d.enabled);
+    const invalidDays = DAYS_OF_WEEK.filter(
+        ({ key }) => scheduleConfig[key]?.enabled && scheduleConfig[key].end <= scheduleConfig[key].start
+    );
+
     const handleSaveAvailability = async () => {
+        if (invalidDays.length > 0) {
+            toast.error(`End time must be after start time on ${invalidDays.map((d) => d.label).join(", ")}`);
+            return;
+        }
+
         try {
             setSavingAvailability(true);
             const payload = Object.entries(scheduleConfig).map(([day, val]) => ({
@@ -119,7 +130,8 @@ export default function WorkerSchedulePage() {
                 setIsAvailabilityOpen(false);
                 fetchSchedule();
             } else {
-                toast.error("Failed to update availability");
+                const err = await res.json().catch(() => ({}));
+                toast.error(err.error || "Failed to update availability");
             }
         } catch (error) {
             console.error("Error saving availability:", error);
@@ -586,11 +598,26 @@ export default function WorkerSchedulePage() {
                         })}
                     </div>
 
+                    {invalidDays.length > 0 && (
+                        <p className="text-xs text-rose-600">
+                            End time must be after start time on {invalidDays.map((d) => d.label).join(", ")}.
+                        </p>
+                    )}
+                    {enabledDays.length === 0 && (
+                        <p className="text-xs text-amber-600">
+                            You are marked off duty every day, so no jobs can be assigned to you.
+                        </p>
+                    )}
+
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setIsAvailabilityOpen(false)}>
                             Cancel
                         </Button>
-                        <Button onClick={handleSaveAvailability} disabled={savingAvailability} className="gap-2">
+                        <Button
+                            onClick={handleSaveAvailability}
+                            disabled={savingAvailability || invalidDays.length > 0}
+                            className="gap-2"
+                        >
                             {savingAvailability && <Loader2 className="w-4 h-4 animate-spin" />}
                             Save Preferences
                         </Button>

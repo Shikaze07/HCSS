@@ -1,12 +1,27 @@
 import { NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
+import { getSession } from "@/lib/auth"
 import { checkWorkerAvailability } from "@/lib/worker-availability"
+
+const STATUSES = ["ASSIGNED", "ACCEPTED", "DECLINED", "ON_THE_WAY", "ARRIVED", "IN_PROGRESS", "COMPLETED"]
 
 export async function PATCH(req, { params }) {
     try {
+        const session = await getSession()
+        if (!session || session.user.role !== "ADMIN") {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+        }
+
         const { id } = await params
         const body = await req.json()
         const { workerId, status } = body
+
+        if (status !== undefined && !STATUSES.includes(status)) {
+            return NextResponse.json({ error: "Invalid assignment status" }, { status: 400 })
+        }
+        if (workerId !== undefined && (typeof workerId !== "string" || !workerId)) {
+            return NextResponse.json({ error: "Invalid worker" }, { status: 400 })
+        }
 
         const current = await prisma.workerAssignment.findUnique({
             where: { id },
@@ -19,6 +34,17 @@ export async function PATCH(req, { params }) {
 
         // Only check the schedule when moving the job to a different worker
         if (workerId && workerId !== current.workerId) {
+            const worker = await prisma.user.findUnique({
+                where: { id: workerId },
+                select: { role: true, status: true },
+            })
+            if (!worker || worker.role !== "WORKER") {
+                return NextResponse.json({ error: "Worker not found" }, { status: 404 })
+            }
+            if (worker.status !== "ACTIVE") {
+                return NextResponse.json({ error: "This worker's account is not active" }, { status: 400 })
+            }
+
             const conflict = await checkWorkerAvailability(workerId, current.booking)
             if (conflict) {
                 return NextResponse.json(
@@ -57,6 +83,11 @@ export async function PATCH(req, { params }) {
 
 export async function DELETE(req, { params }) {
     try {
+        const session = await getSession()
+        if (!session || session.user.role !== "ADMIN") {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+        }
+
         const { id } = await params
         // Get the bookingId before deletion to update the booking status
         const assignment = await prisma.workerAssignment.findUnique({

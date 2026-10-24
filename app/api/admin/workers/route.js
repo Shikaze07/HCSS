@@ -1,9 +1,15 @@
 import { NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
+import { getSession } from "@/lib/auth"
 import { annotateWorkersForBooking } from "@/lib/worker-availability"
 
 export async function GET(req) {
     try {
+        const session = await getSession()
+        if (!session || session.user.role !== "ADMIN") {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+        }
+
         const workers = await prisma.user.findMany({
             where: {
                 role: "WORKER",

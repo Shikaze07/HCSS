@@ -1,6 +1,10 @@
 import prisma from "@/lib/prisma";
 
-const DAYS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"] as const;
+// Bookings are compared against worker hours in the business's local time,
+// so results don't depend on the server's or the browser's timezone.
+export const BUSINESS_TIMEZONE = process.env.BUSINESS_TIMEZONE || "Asia/Manila";
+
+export const DAYS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"] as const;
 const DAY_LABELS: Record<string, string> = {
     SUN: "Sunday",
     MON: "Monday",
@@ -26,38 +30,63 @@ type BookingSlot = { id: string; startTime: Date; endTime: Date };
 type AvailabilityRow = { day: string; startTime: Date; endTime: Date };
 type AssignmentRow = { booking: BookingSlot };
 
+// Availability hours are stored as UTC clock times on 1970-01-01 (08:00 = 8 AM)
+export const availabilityTime = (hour: number) => new Date(Date.UTC(1970, 0, 1, hour, 0));
+export const availabilityHour = (d: Date) => new Date(d).getUTCHours();
+
 const formatHour = (h: number) => {
     const suffix = h >= 12 ? "PM" : "AM";
     const hour = h % 12 === 0 ? 12 : h % 12;
     return `${hour}:00 ${suffix}`;
 };
 
-const minutesOfDay = (d: Date) => d.getHours() * 60 + d.getMinutes();
+// Day, date and minutes-since-midnight of a timestamp in the business timezone
+function localParts(d: Date) {
+    const parts = Object.fromEntries(
+        new Intl.DateTimeFormat("en-US", {
+            timeZone: BUSINESS_TIMEZONE,
+            weekday: "short",
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            hourCycle: "h23",
+        })
+            .formatToParts(d)
+            .map((p) => [p.type, p.value])
+    );
+    return {
+        day: parts.weekday.toUpperCase().slice(0, 3),
+        date: `${parts.year}-${parts.month}-${parts.day}`,
+        minutes: Number(parts.hour) * 60 + Number(parts.minute),
+    };
+}
 
 // Returns a reason string if the worker cannot take the booking, otherwise null.
 function getConflict(booking: BookingSlot, availability: AvailabilityRow[], assignments: AssignmentRow[]) {
     const start = new Date(booking.startTime);
     const end = new Date(booking.endTime);
-    const day = DAYS[start.getDay()];
+    const s = localParts(start);
+    const e = localParts(end);
 
     let hours: { start: number; end: number } | null;
     if (availability.length === 0) {
-        hours = DEFAULT_HOURS[day];
+        hours = DEFAULT_HOURS[s.day];
     } else {
         // A missing row or a zero-length window (startTime === endTime) means a day off
-        const row = availability.find((a) => a.day === day);
-        const rowStart = row ? new Date(row.startTime).getHours() : 0;
-        const rowEnd = row ? new Date(row.endTime).getHours() : 0;
+        const row = availability.find((a) => a.day === s.day);
+        const rowStart = row ? availabilityHour(row.startTime) : 0;
+        const rowEnd = row ? availabilityHour(row.endTime) : 0;
         hours = row && rowEnd > rowStart ? { start: rowStart, end: rowEnd } : null;
     }
 
     if (!hours) {
-        return `Not working on ${DAY_LABELS[day]}`;
+        return `Not working on ${DAY_LABELS[s.day]}`;
     }
 
-    const sameDay = start.toDateString() === end.toDateString();
-    if (!sameDay || minutesOfDay(start) < hours.start * 60 || minutesOfDay(end) > hours.end * 60) {
-        return `Works ${formatHour(hours.start)} - ${formatHour(hours.end)} on ${DAY_LABELS[day]}`;
+    if (s.date !== e.date || s.minutes < hours.start * 60 || e.minutes > hours.end * 60) {
+        return `Works ${formatHour(hours.start)} - ${formatHour(hours.end)} on ${DAY_LABELS[s.day]}`;
     }
 
     const clash = assignments.find(
@@ -108,4 +137,12 @@ export async function annotateWorkersForBooking<T extends { id: string }>(worker
         );
         return { ...w, available: !reason, unavailableReason: reason };
     });
+}
+
+// Checks a booking can still be assigned at all (before looking at any worker)
+export function getBookingProblem(booking: { status: string; startTime: Date }) {
+    if (booking.status === "CANCELLED") return "This booking was cancelled";
+    if (booking.status === "COMPLETED") return "This booking is already completed";
+    if (new Date(booking.startTime).getTime() < Date.now()) return "This booking's start time has already passed";
+    return null;
 }
