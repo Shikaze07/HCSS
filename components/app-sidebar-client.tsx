@@ -157,17 +157,16 @@ export function AppSidebarClient({ ...props }: React.ComponentProps<typeof Sideb
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <div className="flex items-center gap-3">
-              <div className="flex h-20 w-20 items-center justify-center rounded-md text-sm font-semibold">
-                {/* <Image src="/ched-logo.png" alt="CHED Logo" width={50} height={50} /> */}
-                <h1 className=" text-2xl">LOGO</h1>
+            <div className="flex items-center gap-3 p-1">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-amber-50 border border-amber-200/60 p-1 shadow-sm">
+                <Image src="/logohcss.png" alt="HCSS Logo" width={36} height={36} className="object-contain" priority />
               </div>
 
               <div className="leading-tight">
-                <h1 className="text-sm font-medium">
-                  Home Cleaning Service System
+                <h1 className="text-sm font-bold text-foreground">
+                  HCSS Client
                 </h1>
-
+                <p className="text-[11px] text-muted-foreground">Home Cleaning System</p>
               </div>
             </div>
           </SidebarMenuItem>

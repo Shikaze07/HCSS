@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -16,12 +17,13 @@ import {
   Smartphone,
   Zap,
   House,
-  Sparkles,
-  Bath,
+    Bath,
   Package,
   Check,
   MessageSquare
 } from 'lucide-react'
+import { CustomerSignUpModal } from "@/components/CustomerSignUpModal"
+import { LoginModal } from "@/components/LoginModal"
 
 const stats = [
   { value: "2,400+", label: "Happy Homes Cleaned" },
@@ -39,7 +41,7 @@ const services = [
     image: "",
   },
   {
-    icon: <Sparkles className="w-8 h-8 text-amber-600" />,
+    icon: <House className="w-8 h-8 text-amber-600" />,
     title: "Regular Maintenance",
     desc: "Weekly or bi-weekly upkeep to keep your space consistently fresh.",
     price: "From ₱499",
@@ -110,13 +112,33 @@ interface DBService {
   price: number;
 }
 
+
+function getServiceIcon(name: string, index: number) {
+  const lower = name.toLowerCase();
+  if (lower.includes('deep') || lower.includes('intensive')) return <ShieldCheck className="w-8 h-8 text-amber-600" />;
+  if (lower.includes('bath') || lower.includes('kitchen') || lower.includes('sanitiz')) return <Bath className="w-8 h-8 text-amber-600" />;
+  if (lower.includes('move') || lower.includes('pack') || lower.includes('construction')) return <Package className="w-8 h-8 text-amber-600" />;
+  return <House className="w-8 h-8 text-amber-600" />;
+}
+
 const HomePage = () => {
   const [scrolled, setScrolled] = useState(false)
   const [activeTestimonial, setActiveTestimonial] = useState(0)
   const [dbServices, setDbServices] = useState<DBService[]>([])
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [signUpModalOpen, setSignUpModalOpen] = useState(false)
+  const [loginModalOpen, setLoginModalOpen] = useState(false)
   const router = useRouter()
+
+  const handleBookingClick = (e?: React.MouseEvent) => {
+    if (e) e.preventDefault()
+    if (user?.role === 'CLIENT') {
+      router.push('/client/booking-management')
+    } else {
+      setSignUpModalOpen(true)
+    }
+  }
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
@@ -173,10 +195,8 @@ const HomePage = () => {
       <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? 'bg-[#faf8f5]/95 backdrop-blur-md border-b border-[#e8e0d5] py-3' : 'bg-transparent py-5'
         }`}>
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-          <div className="flex items-center gap-2.5 group cursor-pointer" onClick={() => router.push('/')}>
-            {/* <div className="w-9 h-9 bg-gradient-to-br from-[#2c1810] to-[#5a3020] flex items-center justify-center text-white rounded-sm shadow-lg group-hover:scale-110 transition-transform duration-300">
-              <Sparkles className="w-5 h-5" />
-            </div> */}
+          <div className="flex items-center gap-3 group cursor-pointer" onClick={() => router.push('/')}>
+            <Image src="/logohcss.png" alt="HCSS Logo" width={42} height={42} className="object-contain group-hover:scale-105 transition-transform" priority />
             <span className="font-display font-bold text-2xl tracking-tighter text-[#2c1810]">HCSS</span>
           </div>
 
@@ -204,16 +224,27 @@ const HomePage = () => {
               </Link>
             )} */}
 
-            <Link href="/login">
-              <Button variant="outline" className="hidden sm:flex border-[#2c1810] text-[#2c1810] hover:bg-[#2c1810] hover:text-white transition-all duration-300 rounded-none h-10 px-6 font-bold tracking-widest text-[11px] uppercase">
+            {user ? (
+              <Link href={getDashboardUrl(user.role)}>
+                <Button variant="outline" className="hidden sm:flex border-[#2c1810] text-[#2c1810] hover:bg-[#2c1810] hover:text-white transition-all duration-300 rounded-none h-10 px-6 font-bold tracking-widest text-[11px] uppercase">
+                  Dashboard
+                </Button>
+              </Link>
+            ) : (
+              <Button
+                variant="outline"
+                onClick={() => setLoginModalOpen(true)}
+                className="hidden sm:flex border-[#2c1810] text-[#2c1810] hover:bg-[#2c1810] hover:text-white transition-all duration-300 rounded-none h-10 px-6 font-bold tracking-widest text-[11px] uppercase"
+              >
                 Login
               </Button>
-            </Link>
-            <Link href={user?.role === 'CLIENT' ? '/client/booking-management' : '/login'}>
-              <Button className="bg-[#2c1810] text-[#faf8f5] hover:bg-amber-700 transition-all duration-300 rounded-none h-10 px-6 font-bold tracking-widest text-[11px] uppercase shadow-md shadow-black/5 hover:shadow-amber-500/20 hover:-translate-y-0.5">
-                Book Now
-              </Button>
-            </Link>
+            )}
+            <Button
+              onClick={handleBookingClick}
+              className="bg-[#2c1810] text-[#faf8f5] hover:bg-amber-700 transition-all duration-300 rounded-none h-10 px-6 font-bold tracking-widest text-[11px] uppercase shadow-md shadow-black/5 hover:shadow-amber-500/20 hover:-translate-y-0.5"
+            >
+              {user?.role === 'CLIENT' ? 'Book Now' : 'Sign Up & Book'}
+            </Button>
           </div>
         </div>
       </nav>
@@ -274,11 +305,12 @@ const HomePage = () => {
                     </>
                   )}
                 </select>
-                <Link href={user?.role === 'CLIENT' ? '/client/booking-management' : '/login'} className="w-full sm:w-auto">
-                  <Button className="w-full bg-gradient-to-r from-amber-600 to-amber-500 text-white border-none h-auto py-3.5 px-8 font-bold tracking-widest text-[12px] uppercase group-hover:shadow-lg group-hover:shadow-amber-500/25 transition-all duration-500 rounded-none">
-                    Book Now <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </Link>
+                <Button
+                  onClick={handleBookingClick}
+                  className="w-full sm:w-auto bg-gradient-to-r from-amber-600 to-amber-500 text-white border-none h-auto py-3.5 px-8 font-bold tracking-widest text-[12px] uppercase group-hover:shadow-lg group-hover:shadow-amber-500/25 transition-all duration-500 rounded-none"
+                >
+                  {user?.role === 'CLIENT' ? 'Book Now' : 'Sign Up & Book'} <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                </Button>
               </div>
             </div>
 
@@ -359,14 +391,14 @@ const HomePage = () => {
             <h3 className="font-display text-4xl md:text-5xl font-bold italic text-[#2c1810] leading-tight">Tailored Care for Every Space</h3>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {(dbServices.length > 0
-              ? dbServices.slice(0, 4).map(s => ({
+              ? dbServices.map((s, i) => ({
                 title: s.name,
                 desc: s.description,
                 price: `₱${s.price.toLocaleString()}`,
                 image: s.image,
-                icon: <Sparkles className="w-8 h-8 text-amber-600" />
+                icon: getServiceIcon(s.name, i)
               }))
               : services
             ).map((s, i) => (
@@ -390,9 +422,13 @@ const HomePage = () => {
                   </p>
                   <div className="flex justify-between items-center mt-auto pt-4 border-t border-[#f0ebe4]">
                     <span className="font-bold text-amber-700 text-sm tracking-tight">{s.price}</span>
-                    <Link href={user?.role === 'CLIENT' ? '/client/booking-management' : '/login'}>
-                      <span className="text-[10px] font-bold tracking-[2px] uppercase text-[#2c1810] cursor-pointer hover:text-amber-600 border-b border-[#2c1810] hover:border-amber-600 pb-0.5 transition-all">Book →</span>
-                    </Link>
+                    <button
+                      type="button"
+                      onClick={handleBookingClick}
+                      className="text-[10px] font-bold tracking-[2px] uppercase text-[#2c1810] cursor-pointer hover:text-amber-600 border-b border-[#2c1810] hover:border-amber-600 pb-0.5 transition-all bg-transparent border-t-0 border-x-0"
+                    >
+                      {user?.role === 'CLIENT' ? 'Book →' : 'Sign Up to Book →'}
+                    </button>
                   </div>
                 </CardContent>
               </Card>
@@ -426,11 +462,12 @@ const HomePage = () => {
           </div>
 
           <div className="text-center mt-24">
-            <Link href={user?.role === 'CLIENT' ? '/client/booking-management' : '/login'}>
-              <Button className="bg-gradient-to-r from-[#2c1810] to-[#5a3020] text-white py-8 px-12 rounded-none font-bold tracking-[3px] uppercase text-sm shadow-2xl hover:shadow-amber-900/40 hover:-translate-y-1 transition-all">
-                Schedule Your First Clean
-              </Button>
-            </Link>
+            <Button
+              onClick={handleBookingClick}
+              className="bg-gradient-to-r from-[#2c1810] to-[#5a3020] text-white py-8 px-12 rounded-none font-bold tracking-[3px] uppercase text-sm shadow-2xl hover:shadow-amber-900/40 hover:-translate-y-1 transition-all"
+            >
+              {user?.role === 'CLIENT' ? 'Schedule Your First Clean' : 'Sign Up & Book Your Clean'}
+            </Button>
           </div>
         </div>
       </section>
@@ -555,11 +592,12 @@ const HomePage = () => {
             Join thousands of homeowners who've traded cleaning stress for a spotless sanctuary. Your first journey begins with a 3-minute booking.
           </p>
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-            <Link href={user?.role === 'CLIENT' ? '/client/booking-management' : '/login'}>
-              <Button className="bg-amber-600 text-white rounded-none py-10 px-16 font-bold tracking-[4px] uppercase text-sm shadow-2xl shadow-amber-600/20 hover:bg-amber-500 hover:-translate-y-2 transition-all duration-500">
-                Book My First Clean <ArrowRight className="w-5 h-5 ml-3" />
-              </Button>
-            </Link>
+            <Button
+              onClick={handleBookingClick}
+              className="bg-amber-600 text-white rounded-none py-10 px-16 font-bold tracking-[4px] uppercase text-sm shadow-2xl shadow-amber-600/20 hover:bg-amber-500 hover:-translate-y-2 transition-all duration-500"
+            >
+              {user?.role === 'CLIENT' ? 'Book My First Clean' : 'Sign Up & Book My Clean'} <ArrowRight className="w-5 h-5 ml-3" />
+            </Button>
             <Button variant="outline" className="border-white/20 text-white bg-transparent rounded-none py-10 px-12 font-bold tracking-[4px] uppercase text-[12px] hover:bg-white hover:text-black transition-all h-auto">
               See All Services
             </Button>
@@ -575,8 +613,10 @@ const HomePage = () => {
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-24">
             <div className="lg:col-span-1">
-              <div className="flex items-center gap-2.5 mb-8">
-                <div className="w-8 h-8 bg-amber-600 flex items-center justify-center text-white font-black text-lg">✦</div>
+              <div className="flex items-center gap-3 mb-8">
+                <div className="w-11 h-11 bg-white/10 rounded-lg p-1.5 flex items-center justify-center border border-white/10">
+                  <Image src="/logohcss.png" alt="HCSS Logo" width={36} height={36} className="object-contain" />
+                </div>
                 <span className="font-display font-bold text-xl tracking-tighter">HCSS</span>
               </div>
               <p className="text-sm text-white/40 leading-relaxed font-light italic pr-8">
@@ -608,6 +648,20 @@ const HomePage = () => {
           </div>
         </div>
       </footer>
+      <LoginModal
+        open={loginModalOpen}
+        onOpenChange={setLoginModalOpen}
+        onSwitchToSignUp={() => setSignUpModalOpen(true)}
+        onSuccess={(loggedUser) => setUser(loggedUser)}
+      />
+      <CustomerSignUpModal
+        open={signUpModalOpen}
+        onOpenChange={setSignUpModalOpen}
+        onSwitchToLogin={() => setLoginModalOpen(true)}
+        onSuccess={(newUser) => {
+          setUser(newUser)
+        }}
+      />
     </div>
   )
 }

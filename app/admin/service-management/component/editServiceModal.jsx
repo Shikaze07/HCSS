@@ -20,7 +20,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { toast } from "sonner"
-import { Sparkles, AlignLeft, Banknote, Clock, Settings2, CheckCircle2, AlertCircle, Upload, X, Loader2 } from "lucide-react"
+import { AlignLeft, Banknote, Clock, Settings2, CheckCircle2, AlertCircle, Upload, X, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export function EditServiceModal({ service, open, setOpen, onServiceUpdated }) {

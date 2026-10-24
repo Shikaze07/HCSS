@@ -21,7 +21,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { toast } from "sonner"
-import { Sparkles, AlignLeft, Banknote, Clock, PlusCircle, ImageIcon, Upload, X, Loader2 } from "lucide-react"
+import { AlignLeft, Banknote, Clock, PlusCircle, ImageIcon, Upload, X, Loader2 } from "lucide-react"
 
 export function AddServiceModal({ onServiceAdded }) {
     const [open, setOpen] = useState(false)
@@ -139,7 +139,7 @@ export function AddServiceModal({ onServiceAdded }) {
             <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden">
                 <DialogHeader className="p-6 pb-0">
                     <DialogTitle className="text-2xl font-bold flex items-center gap-2">
-                        <Sparkles className="h-6 w-6 text-primary" />
+                        <PlusCircle className="h-6 w-6 text-primary" />
                         Add New Service
                     </DialogTitle>
                 </DialogHeader>

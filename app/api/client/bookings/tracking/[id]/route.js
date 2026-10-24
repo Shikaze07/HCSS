@@ -1,21 +1,24 @@
-import { NextResponse } from "next/server"
-import prisma from "@/lib/prisma"
-import { getSession } from "@/lib/auth"
+import { NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
+import { getSession } from "@/lib/auth";
 
 export async function GET(req, { params }) {
     try {
         const { id } = await params;
-        const session = await getSession()
+        const session = await getSession();
 
-        if (!session || session.user.role !== "CLIENT") {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+        if (!session) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
+        const where = { id };
+        // If client, ensure they can only access their own booking
+        if (session.user.role === "CLIENT") {
+            where.clientId = session.user.id;
         }
 
         const booking = await prisma.booking.findFirst({
-            where: {
-                id: id,
-                clientId: session.user.id,
-            },
+            where,
             include: {
                 service: true,
                 review: true,
@@ -33,15 +36,15 @@ export async function GET(req, { params }) {
                     },
                 },
             },
-        })
+        });
 
         if (!booking) {
-            return NextResponse.json({ error: "Booking not found" }, { status: 404 })
+            return NextResponse.json({ error: "Booking not found" }, { status: 404 });
         }
 
-        return NextResponse.json(booking)
+        return NextResponse.json(booking);
     } catch (error) {
-        console.error("Error fetching booking tracking:", error)
-        return NextResponse.json({ error: "Failed to fetch booking" }, { status: 500 })
+        console.error("Error fetching booking tracking:", error);
+        return NextResponse.json({ error: "Failed to fetch booking" }, { status: 500 });
     }
 }

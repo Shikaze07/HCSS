@@ -65,16 +65,6 @@ export default function BookingTrackingPage() {
             </div>
 
             <TrackingDetail booking={booking} />
-
-            <style jsx global>{`
-                @keyframes bounce-subtle {
-                    0%, 100% { transform: translateY(0); }
-                    50% { transform: translateY(-3px); }
-                }
-                .animate-bounce-subtle {
-                    animation: bounce-subtle 2s ease-in-out infinite;
-                }
-            `}</style>
         </div>
     )
 }

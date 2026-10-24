@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -71,8 +73,18 @@ export function LoginForm({
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
-        <CardHeader>
-          <CardTitle>Login to your account</CardTitle>
+        <CardHeader className="text-center flex flex-col items-center">
+          <div className="w-14 h-14 rounded-xl bg-amber-50 border border-amber-200/60 p-2 flex items-center justify-center shadow-sm mb-2">
+            <Image
+              src="/logohcss.png"
+              alt="HCSS Logo"
+              width={42}
+              height={42}
+              className="object-contain"
+              priority
+            />
+          </div>
+          <CardTitle className="text-2xl font-bold">Login to your account</CardTitle>
           <CardDescription>
             Enter your email below to login to your account
           </CardDescription>
@@ -95,12 +107,7 @@ export function LoginForm({
               <Field>
                 <div className="flex items-center">
                   <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <a
-                    href="#"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                  >
-                    Forgot your password?
-                  </a>
+
                 </div>
                 <Input
                   id="password"
@@ -117,7 +124,10 @@ export function LoginForm({
                 </Button>
 
                 <FieldDescription className="text-center">
-                  Don&apos;t have an account? <a href="#">Sign up</a>
+                  Don&apos;t have an account?{" "}
+                  <Link href="/" className="font-semibold text-amber-700 hover:underline">
+                    Sign Up to Book
+                  </Link>
                 </FieldDescription>
               </Field>
             </FieldGroup>
