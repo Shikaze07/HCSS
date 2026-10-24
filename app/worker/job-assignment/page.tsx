@@ -38,6 +38,8 @@ interface Booking {
     startTime: string;
     endTime: string;
     address: string;
+    latitude: number | null;
+    longitude: number | null;
     service: Service;
     client: Client;
 }

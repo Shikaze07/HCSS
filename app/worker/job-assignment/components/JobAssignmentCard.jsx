@@ -19,11 +19,18 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { toast } from "sonner";
+import dynamic from "next/dynamic";
+
+const RouteMap = dynamic(
+    () => import("@/components/maps/RouteMap").then((m) => m.RouteMap),
+    { ssr: false, loading: () => <div className="h-64 w-full rounded-lg border bg-muted/40 animate-pulse" /> }
+);
 
 export function JobAssignmentCard({ assignment, onStatusUpdate }) {
     const [updating, setUpdating] = useState(false);
     const { booking, status } = assignment;
-    const { service, client, bookingDate, startTime, endTime, address } = booking;
+    const { service, client, bookingDate, startTime, endTime, address, latitude, longitude } = booking;
+    const hasPin = latitude != null && longitude != null;
 
     const handleUpdateStatus = async (newStatus) => {
         setUpdating(true);
@@ -129,12 +136,13 @@ export function JobAssignmentCard({ assignment, onStatusUpdate }) {
                             <p className="font-medium text-foreground leading-relaxed">
                                 {address}
                             </p>
-                            <Button variant="link" className="p-0 h-auto text-xs text-primary font-semibold flex items-center gap-1 mt-0.5 hover:no-underline">
-                                <Navigation className="w-3 h-3" />
-                                Get Directions
-                            </Button>
+                            {!hasPin && (
+                                <p className="text-xs text-muted-foreground mt-0.5">The client did not pin a map location for this booking.</p>
+                            )}
                         </div>
                     </div>
+
+                    {hasPin && <RouteMap latitude={latitude} longitude={longitude} address={address} />}
 
                     <div className="p-3 bg-primary/5 rounded-xl border border-primary/10">
                         <div className="flex items-center gap-2.5 mb-2">

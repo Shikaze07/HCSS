@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { User, Phone, Mail, Clock, MapPin, Loader2 } from "lucide-react"
+import { User, Phone, Mail, Clock, MapPin } from "lucide-react"
 import { StatusTimeline } from "./StatusTimeline"
 import { ReviewSection } from "./ReviewSection"
 
@@ -98,8 +98,11 @@ export function TrackingDetail({ booking }) {
                             </div>
                         ) : (
                             <div className="flex flex-col items-center justify-center py-6 text-center space-y-3">
-                                <Loader2 className="h-10 w-10 text-muted-foreground/30 animate-spin" />
-                                <p className="text-sm font-bold text-muted-foreground">Finding the best worker for you...</p>
+                                <div className="h-14 w-14 rounded-2xl bg-muted flex items-center justify-center border">
+                                    <User className="h-7 w-7 text-muted-foreground/50" />
+                                </div>
+                                <p className="text-sm font-bold text-muted-foreground">No assigned worker yet</p>
+                                <p className="text-xs text-muted-foreground/80">A worker will be assigned to your booking by the admin.</p>
                             </div>
                         )}
                     </div>

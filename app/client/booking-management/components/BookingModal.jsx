@@ -15,6 +15,12 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
 import { MapPin, Loader2 } from "lucide-react"
+import dynamic from "next/dynamic"
+
+const LocationPicker = dynamic(
+    () => import("@/components/maps/LocationPicker").then((m) => m.LocationPicker),
+    { ssr: false, loading: () => <div className="h-64 w-full rounded-md border bg-muted/40 animate-pulse" /> }
+)
 
 export function BookingModal({ service, open, setOpen, onBookingSuccess }) {
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -55,6 +61,24 @@ export function BookingModal({ service, open, setOpen, onBookingSuccess }) {
         }))
     }
 
+    const reverseGeocode = async (latitude, longitude) => {
+        try {
+            // Reverse geocoding using OpenStreetMap Nominatim (free, no key required for low volume)
+            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
+            const data = await response.json()
+            if (data && data.display_name) {
+                setFormData(prev => ({ ...prev, address: data.display_name }))
+            }
+        } catch (error) {
+            console.error("Reverse geocoding error:", error)
+        }
+    }
+
+    const handleMapPick = (latitude, longitude) => {
+        setFormData(prev => ({ ...prev, latitude, longitude }))
+        reverseGeocode(latitude, longitude)
+    }
+
     const handlePinLocation = () => {
         if (!navigator.geolocation) {
             toast.error("Geolocation is not supported by your browser")
@@ -66,22 +90,9 @@ export function BookingModal({ service, open, setOpen, onBookingSuccess }) {
             async (position) => {
                 const { latitude, longitude } = position.coords
                 setFormData(prev => ({ ...prev, latitude, longitude }))
-
-                try {
-                    // Reverse geocoding using OpenStreetMap Nominatim (free, no key required for low volume)
-                    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
-                    const data = await response.json()
-
-                    if (data && data.display_name) {
-                        setFormData(prev => ({ ...prev, address: data.display_name }))
-                        toast.success("Location pinned successfully!")
-                    }
-                } catch (error) {
-                    console.error("Reverse geocoding error:", error)
-                    toast.info(`Pinned at: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}. Please verify the address manually.`)
-                } finally {
-                    setIsLocating(false)
-                }
+                await reverseGeocode(latitude, longitude)
+                toast.success("Location pinned. Drag the pin if it's not exact.")
+                setIsLocating(false)
             },
             (error) => {
                 setIsLocating(false)
@@ -96,6 +107,11 @@ export function BookingModal({ service, open, setOpen, onBookingSuccess }) {
 
         if (!formData.bookingDate || !formData.startTime || !formData.duration || !formData.address) {
             toast.error("Please fill in all fields")
+            return
+        }
+
+        if (formData.latitude == null || formData.longitude == null) {
+            toast.error("Please pin your location on the map")
             return
         }
 
@@ -153,7 +169,7 @@ export function BookingModal({ service, open, setOpen, onBookingSuccess }) {
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent className="sm:max-w-[500px]">
+            <DialogContent className="sm:max-w-[560px] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>Book {service?.name}</DialogTitle>
                     <DialogDescription>
@@ -223,9 +239,17 @@ export function BookingModal({ service, open, setOpen, onBookingSuccess }) {
                                 ) : (
                                     <MapPin className="h-3 w-3" />
                                 )}
-                                {isLocating ? "Locating..." : "Pin Location"}
+                                {isLocating ? "Locating..." : "Use My Location"}
                             </Button>
                         </div>
+                        <LocationPicker
+                            latitude={formData.latitude}
+                            longitude={formData.longitude}
+                            onChange={handleMapPick}
+                        />
+                        <p className="text-[11px] text-muted-foreground">
+                            Tap the map to drop a pin on your exact location, or drag the pin to adjust it.
+                        </p>
                         <Textarea
                             id="address"
                             name="address"
@@ -235,7 +259,7 @@ export function BookingModal({ service, open, setOpen, onBookingSuccess }) {
                             required
                             rows={3}
                         />
-                        {formData.latitude && (
+                        {formData.latitude != null && (
                             <p className="text-[10px] text-muted-foreground">
                                 Coordinates: {formData.latitude.toFixed(6)}, {formData.longitude.toFixed(6)}
                             </p>
