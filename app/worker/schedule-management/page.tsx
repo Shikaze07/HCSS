@@ -41,6 +41,16 @@ const DAYS_OF_WEEK = [
     { key: "SUN", label: "Sunday" },
 ];
 
+// 0 and 24 both read as 12:00 AM (24 is the end of the day)
+const formatHour = (h: number) => {
+    const suffix = h % 24 >= 12 ? "PM" : "AM";
+    const hour = h % 12 === 0 ? 12 : h % 12;
+    return `${hour}:00 ${suffix}`;
+};
+
+// Hours are stored as UTC clock times on 1970-01-01; 24:00 is stored as 00:00 on the next day
+const hoursFromStored = (value: string) => Math.round(new Date(value).getTime() / 3600000);
+
 export default function WorkerSchedulePage() {
     const [assignments, setAssignments] = useState<any[]>([]);
     const [availability, setAvailability] = useState<any[]>([]);
@@ -76,8 +86,8 @@ export default function WorkerSchedulePage() {
                     );
                     // Hours are stored as UTC clock times, so read them without the browser's timezone
                     data.availability.forEach((avail: any) => {
-                        const start = new Date(avail.startTime).getUTCHours();
-                        const end = new Date(avail.endTime).getUTCHours();
+                        const start = hoursFromStored(avail.startTime);
+                        const end = hoursFromStored(avail.endTime);
                         if (newConfig[avail.day] && end > start) {
                             newConfig[avail.day] = { enabled: true, start, end };
                         }
@@ -155,7 +165,7 @@ export default function WorkerSchedulePage() {
     const completedAssignments = assignments.filter((a) => a.status === "COMPLETED");
 
     const workingDaysCount = availability.filter(
-        (a) => new Date(a.endTime).getTime() > new Date(a.startTime).getTime()
+        (a) => hoursFromStored(a.endTime) > hoursFromStored(a.startTime)
     ).length;
 
     const getStatusBadge = (status: string) => {
@@ -565,9 +575,9 @@ export default function WorkerSchedulePage() {
                                                     }
                                                     className="border rounded px-1.5 py-1 bg-background text-xs"
                                                 >
-                                                    {[6, 7, 8, 9, 10, 11, 12].map((h) => (
+                                                    {Array.from({ length: 24 }, (_, h) => h).map((h) => (
                                                         <option key={h} value={h}>
-                                                            {h}:00 AM
+                                                            {formatHour(h)}
                                                         </option>
                                                     ))}
                                                 </select>
@@ -582,9 +592,9 @@ export default function WorkerSchedulePage() {
                                                     }
                                                     className="border rounded px-1.5 py-1 bg-background text-xs"
                                                 >
-                                                    {[14, 15, 16, 17, 18, 19, 20, 21].map((h) => (
+                                                    {Array.from({ length: 24 }, (_, i) => i + 1).map((h) => (
                                                         <option key={h} value={h}>
-                                                            {h > 12 ? `${h - 12}:00 PM` : `${h}:00 AM`}
+                                                            {formatHour(h)}
                                                         </option>
                                                     ))}
                                                 </select>

@@ -30,12 +30,13 @@ type BookingSlot = { id: string; startTime: Date; endTime: Date };
 type AvailabilityRow = { day: string; startTime: Date; endTime: Date };
 type AssignmentRow = { booking: BookingSlot };
 
-// Availability hours are stored as UTC clock times on 1970-01-01 (08:00 = 8 AM)
+// Availability hours are stored as UTC clock times on 1970-01-01 (08:00 = 8 AM);
+// an end of 24 (midnight) is stored as 00:00 on 1970-01-02, so hours read back as 0-24.
 export const availabilityTime = (hour: number) => new Date(Date.UTC(1970, 0, 1, hour, 0));
-export const availabilityHour = (d: Date) => new Date(d).getUTCHours();
+export const availabilityHour = (d: Date) => Math.round(new Date(d).getTime() / 3600000);
 
 const formatHour = (h: number) => {
-    const suffix = h >= 12 ? "PM" : "AM";
+    const suffix = h % 24 >= 12 ? "PM" : "AM";
     const hour = h % 12 === 0 ? 12 : h % 12;
     return `${hour}:00 ${suffix}`;
 };
