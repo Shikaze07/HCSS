@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
+import { annotateWorkersForBooking } from "@/lib/worker-availability"
 
-export async function GET() {
+export async function GET(req) {
     try {
         const workers = await prisma.user.findMany({
             where: {
@@ -12,6 +13,19 @@ export async function GET() {
                 lastName: "asc",
             },
         })
+
+        // With ?bookingId=, mark which workers can take that booking based on their schedule
+        const bookingId = new URL(req.url).searchParams.get("bookingId")
+        if (bookingId) {
+            const booking = await prisma.booking.findUnique({
+                where: { id: bookingId },
+                select: { id: true, startTime: true, endTime: true },
+            })
+            if (booking) {
+                return NextResponse.json(await annotateWorkersForBooking(workers, booking))
+            }
+        }
+
         return NextResponse.json(workers)
     } catch (error) {
         console.error("Error fetching workers:", error)

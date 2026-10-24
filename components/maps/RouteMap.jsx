@@ -2,15 +2,9 @@
 
 import { useEffect, useRef, useState } from "react"
 import "leaflet/dist/leaflet.css"
-import { Loader2, Navigation, Car, Bike, Footprints, LocateFixed } from "lucide-react"
+import { Loader2, Navigation, LocateFixed } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { addTiles, dotIcon, pinIcon } from "./leaflet-utils"
-
-const MODES = [
-    { profile: "driving-car", label: "Drive", icon: Car },
-    { profile: "cycling-regular", label: "Bike", icon: Bike },
-    { profile: "foot-walking", label: "Walk", icon: Footprints },
-]
 
 const formatDistance = (m) => (m >= 1000 ? `${(m / 1000).toFixed(1)} km` : `${Math.round(m)} m`)
 const formatDuration = (s) => {
@@ -27,7 +21,6 @@ export function RouteMap({ latitude, longitude, address }) {
     const LRef = useRef(null)
 
     const [origin, setOrigin] = useState(null)
-    const [profile, setProfile] = useState("driving-car")
     const [route, setRoute] = useState(null)
     const [status, setStatus] = useState("idle") // idle | locating | routing | done | error
     const [error, setError] = useState("")
@@ -72,7 +65,7 @@ export function RouteMap({ latitude, longitude, address }) {
         )
     }
 
-    // Fetch and draw the route whenever origin or travel mode changes
+    // Fetch and draw the route whenever the origin changes
     useEffect(() => {
         if (!origin) return
         let cancelled = false
@@ -85,7 +78,6 @@ export function RouteMap({ latitude, longitude, address }) {
             body: JSON.stringify({
                 start: [origin[1], origin[0]],
                 end: [longitude, latitude],
-                profile,
             }),
         })
             .then(async (res) => {
@@ -119,7 +111,7 @@ export function RouteMap({ latitude, longitude, address }) {
         return () => {
             cancelled = true
         }
-    }, [origin, profile, latitude, longitude])
+    }, [origin, latitude, longitude])
 
     const busy = status === "locating" || status === "routing"
 
@@ -128,20 +120,6 @@ export function RouteMap({ latitude, longitude, address }) {
             <div ref={containerRef} className="relative z-0 h-64 w-full rounded-lg border overflow-hidden" />
 
             <div className="flex flex-wrap items-center gap-2">
-                {MODES.map(({ profile: p, label, icon: Icon }) => (
-                    <Button
-                        key={p}
-                        type="button"
-                        size="sm"
-                        variant={profile === p ? "default" : "outline"}
-                        className="h-8 gap-1"
-                        onClick={() => setProfile(p)}
-                        disabled={busy}
-                    >
-                        <Icon className="w-3.5 h-3.5" />
-                        {label}
-                    </Button>
-                ))}
                 <Button type="button" size="sm" variant="secondary" className="h-8 gap-1 ml-auto" onClick={locateMe} disabled={busy}>
                     {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <LocateFixed className="w-3.5 h-3.5" />}
                     {origin ? "Update my location" : "Show route from me"}

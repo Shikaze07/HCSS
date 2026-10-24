@@ -1,0 +1,355 @@
+================================================================================
+HOME CLEANING SERVICE SYSTEM (HCSS)
+TECH STACK SPECIFICATION & DEFENSE PANEL QUESTIONS GUIDE
+================================================================================
+
+TABLE OF CONTENTS:
+1. PROJECT OVERVIEW & SCOPE
+2. COMPREHENSIVE TECH STACK & JUSTIFICATIONS
+3. SYSTEM ARCHITECTURE & ROLES WORKFLOW
+4. DATABASE DESIGN & SCHEMA SUMMARY
+5. DEFENSE PANEL QUESTIONS & MODEL ANSWERS (CATEGORIZED)
+   - Category 1: General & Architectural Choices
+   - Category 2: Frontend & UI/UX Design
+   - Category 3: Backend, API & Data Flow
+   - Category 4: Database, Prisma ORM & Data Integrity
+   - Category 5: Authentication, Security & RBAC
+   - Category 6: Core Features (Maps, DnD, Charts, Status Tracking)
+   - Category 7: Scalability, Concurrency & Edge Cases
+   - Category 8: Tricky / "Trap" Questions & Pro Answers
+6. KEY DEFENSE TIPS FOR THE PANEL PRESENTATION
+
+================================================================================
+1. PROJECT OVERVIEW & SCOPE
+================================================================================
+System Name: Home Cleaning Service System (HCSS)
+Target Market: On-demand residential cleaning services in the Philippines (supports PHP currency, GCash, Card, Cash, Bank Transfer).
+
+Core Purpose:
+A centralized web-based platform that automates the end-to-end workflow of home cleaning services:
+- Clients: Discover services, select precise geolocation coordinates via interactive maps, schedule bookings, monitor cleaner arrival/status in real-time, submit payments, and rate completed work.
+- Workers/Cleaners: Set weekly working hour availability, receive job assignments, accept/decline bookings, update job progression (Assigned -> On The Way -> Arrived -> In Progress -> Completed), and monitor earnings.
+- Administrators: Manage catalog of services, review incoming bookings, manually assign or reassign cleaners, manage user accounts (Active/Inactive), and generate interactive analytics reports (revenue, bookings, cleaner performance).
+
+Three Primary Roles:
+1. ADMIN: Full system governance, worker assignment, user and service management, financial and performance reporting.
+2. CLIENT: Booking creation, interactive location picker, tracking status, payment verification, rating/reviewing.
+3. WORKER: Managing schedule/availability, accepting assignments, milestone status updates.
+
+
+================================================================================
+2. COMPREHENSIVE TECH STACK & JUSTIFICATIONS
+================================================================================
+
+A. CORE FRAMEWORK & RUNTIME
+--------------------------------------------------------------------------------
+1. Next.js 16 (App Router)
+   - Purpose: Full-stack React framework providing hybrid server-side rendering (SSR), Client Components, and built-in API Route Handlers.
+   - Why used: Eliminates the need to maintain separate backend (Express/Nest) and frontend repositories. Provides file-system routing, built-in layout nesting, and optimal server-side data fetching.
+
+2. React 19 & React DOM 19
+   - Purpose: Declarative component-based UI library.
+   - Why used: Utilizes the latest React features (enhanced Server Components, optimized concurrent rendering, hooks) for maximum responsiveness.
+
+3. TypeScript 5
+   - Purpose: Strongly typed superset of JavaScript.
+   - Why used: Guarantees compile-time type safety across client interfaces, API payloads, and Prisma database models, minimizing runtime errors during demonstrations and production.
+
+B. DATABASE & ORM
+--------------------------------------------------------------------------------
+4. PostgreSQL
+   - Purpose: Robust, open-source relational database management system (RDBMS).
+   - Why used: Strict ACID compliance, relational integrity (foreign keys, cascade deletes, unique constraints), and native support for geographic coordinates and complex analytical queries.
+
+5. Prisma ORM v7 (@prisma/client, @prisma/adapter-pg, pg)
+   - Purpose: Next-generation Object-Relational Mapper with schema migration and type generator.
+   - Why used: Generates fully typed TypeScript client directly from `schema.prisma`. Prevents SQL injection via auto-parameterized queries and ensures clean schema migrations (`prisma db push` / `prisma migrate`).
+
+C. AUTHENTICATION & SECURITY
+--------------------------------------------------------------------------------
+6. Custom Database-Backed Session Authentication
+   - Purpose: State-managed authentication using a dedicated `Session` table in PostgreSQL.
+   - Why used: Grants direct control over active logins, instant session invalidation upon logout, and avoids reliance on external black-box third-party auth providers.
+
+7. HTTP-Only Cookies
+   - Purpose: Storing `session_id` and `user_role` securely in the client's browser.
+   - Why used: `httpOnly: true` prevents Cross-Site Scripting (XSS) attacks because JavaScript running on the page cannot access the cookie. Configured with `SameSite: Lax` to mitigate CSRF.
+
+8. Bcryptjs
+   - Purpose: One-way cryptographic password hashing algorithm with salted rounds.
+   - Why used: Protects user credentials so passwords are never stored in plaintext. In the event of a database compromise, attacker cannot reverse-engineer passwords.
+
+9. Role-Based Access Control (RBAC) via Next.js Proxy/Middleware (`proxy.ts`)
+   - Purpose: Intercepts incoming requests before pages render to enforce route permissions (/admin/*, /client/*, /worker/*).
+   - Why used: Protects against unauthorized URL tampering and automatically redirects unauthorized users to their designated dashboard or the login page.
+
+D. USER INTERFACE & STYLING
+--------------------------------------------------------------------------------
+10. Tailwind CSS v4 & @tailwindcss/postcss
+    - Purpose: Utility-first CSS framework.
+    - Why used: High development velocity, consistent spacing and typography tokens, zero unused CSS in production bundle, and native support for modern CSS variables.
+
+11. Shadcn UI & Radix UI Primitives
+    - Purpose: Accessible, customizable UI component library (Dialogs, Dropdowns, Cards, Tables, Badges, Tabs, Drawer via Vaul).
+    - Why used: Unstyled headless primitives from Radix ensure WAI-ARIA accessibility compliance, while Shadcn allows full ownership of component source code inside `components/ui/`.
+
+12. Lucide React & Tabler Icons
+    - Purpose: Modern, lightweight iconography.
+    - Why used: Consistent icon language across all dashboards and client portals.
+
+13. Next-Themes
+    - Purpose: Theme provider supporting Dark Mode, Light Mode, and System preferences.
+    - Why used: Persists user preference without flickering on initial page load (FOUC prevention).
+
+E. SPECIALIZED LIBRARIES & FEATURES
+--------------------------------------------------------------------------------
+14. Leaflet & OpenStreetMap (LocationPicker, RouteMap)
+    - Purpose: Interactive interactive mapping and geolocation services.
+    - Why used: Open-source, lightweight alternative to Google Maps API (zero API billing costs). Allows clients to pinpoint home coordinates (Latitude & Longitude) and enables visual location tracking for service addresses.
+
+15. TanStack Table v8 (@tanstack/react-table)
+    - Purpose: Headless table management library.
+    - Why used: Powers high-performance data grids with built-in client-side and server-side pagination, multi-column sorting, and real-time keyword filtering (used in admin user, booking, and worker tables).
+
+16. Recharts
+    - Purpose: Composable charting library built on React components and SVG.
+    - Why used: Visualizes booking distribution, service demand, and revenue trends in the Admin Reports dashboard with responsive interactive tooltips.
+
+17. @dnd-kit (Core, Sortable, Modifiers, Utilities)
+    - Purpose: Modern drag-and-drop toolkit for React.
+    - Why used: Provides smooth, accessible drag-and-drop functionality for worker assignment boards or reordering priorities.
+
+18. React Hook Form & Zod
+    - Purpose: Form state management and schema-based validation.
+    - Why used: Zod provides type-inferred schemas to validate inputs both on client forms and backend route handlers, preventing malformed data submissions.
+
+19. Sonner
+    - Purpose: Sleek, stacked toast notification system.
+    - Why used: Provides immediate, non-intrusive feedback for actions like "Booking Created", "Status Updated", or "Logged Out".
+
+
+================================================================================
+3. SYSTEM ARCHITECTURE & ROLES WORKFLOW
+================================================================================
+
+Client Flow:
+1. Registration / Login -> Directed to Client Portal.
+2. Select Service (e.g., Deep Cleaning, Regular Maintenance) -> Specify date, start/end time.
+3. Pin Location via Leaflet LocationPicker -> Captures Latitude, Longitude, and formatted address.
+4. Select Payment Method (CASH, GCASH, CARD, BANK) -> Booking created with status `PENDING`.
+5. Real-time Service Tracking -> Client monitors status progression:
+   PENDING -> CONFIRMED -> ASSIGNED -> ON_THE_WAY -> ARRIVED -> IN_PROGRESS -> COMPLETED.
+6. Post-Service Review -> Client leaves 1-5 star rating and feedback stored in `Review` model.
+
+Worker Flow:
+1. Set Availability -> Worker specifies working days (MON-SUN) and hours in `WorkerAvailability`.
+2. Job Notification/Board -> Worker reviews assigned bookings under `workerAssignments`.
+3. Action Assignment -> Accept or Decline assigned task.
+4. Milestone Progression -> Update status as they travel, arrive, and finish the cleaning task.
+
+Admin Flow:
+1. Operational Overview -> Interactive charts (Recharts) showing active cleaners, pending jobs, and total revenue.
+2. Booking Dispatch -> Match unassigned bookings to available workers based on schedule and location.
+3. Catalog Management -> Add, edit, or toggle status of services and pricing.
+4. User Governance -> Activate or suspend worker/client accounts.
+
+
+================================================================================
+4. DATABASE DESIGN & SCHEMA SUMMARY (PRISMA & POSTGRESQL)
+================================================================================
+
+Models:
+- User:
+  Attributes: id (UUID), firstName, middleName, lastName, email (unique), password (hashed), phone, role (ADMIN|CLIENT|WORKER), status (ACTIVE|INACTIVE), timestamps.
+  Relations: Bookings, WorkerAssignments, WorkerAvailability, ReviewsGiven, ReviewsReceived, Sessions.
+
+- Service:
+  Attributes: id (UUID), name, description, image, price (Float), status (Boolean), duration (minutes).
+
+- Booking:
+  Attributes: id (UUID), clientId, serviceId, bookingDate, startTime, endTime, address, latitude, longitude, duration, totalAmount, status (PENDING|CONFIRMED|IN_PROGRESS|COMPLETED|CANCELLED).
+  Relations: WorkerAssignment (1-to-1), Payment (1-to-1), Review (1-to-1).
+
+- WorkerAssignment:
+  Attributes: id (UUID), bookingId (unique), workerId, assignedAt, status (ASSIGNED|ON_THE_WAY|ARRIVED|IN_PROGRESS|ACCEPTED|DECLINED|COMPLETED).
+
+- WorkerAvailability:
+  Attributes: id (UUID), workerId, day (DayOfWeek enum: MON..SUN), startTime, endTime.
+
+- Payment:
+  Attributes: id (UUID), bookingId (unique), amount, method (CASH|GCASH|CARD|BANK), paymentStatus (PENDING|PAID|FAILED), paidAt.
+
+- Review:
+  Attributes: id (UUID), bookingId (unique), clientId, workerId, rating (Int: 1-5), comment, createdAt.
+
+- Session:
+  Attributes: id (UUID), userId, expiresAt. Cascade delete on User removal.
+
+
+================================================================================
+5. DEFENSE PANEL QUESTIONS & MODEL ANSWERS (CATEGORIZED)
+================================================================================
+
+--------------------------------------------------------------------------------
+CATEGORY 1: GENERAL & ARCHITECTURAL CHOICES
+--------------------------------------------------------------------------------
+
+Q1: What is the main problem your system solves, and who are the direct beneficiaries?
+A1: "HCSS addresses the fragmentation, lack of transparency, and manual coordination typically involved in scheduling residential cleaning services. Homeowners often struggle to find reliable, vetted cleaners with transparent pricing, while cleaners lack a structured dispatch system to organize their daily jobs. HCSS automates this lifecycle by offering self-service map-based booking for clients, job tracking for cleaners, and dispatch/revenue oversight for service managers."
+
+Q2: Why did you choose Next.js instead of a separate React frontend and Express.js backend?
+A2: "We opted for Next.js App Router for three primary reasons:
+1. Unified Codebase: Both frontend components and backend API route handlers live within one cohesive TypeScript repository, eliminating API contract drift and duplicate type definitions.
+2. Reduced Infrastructure Overhead: A monolithic full-stack Next.js deployment simplifies environment configuration, deployment pipelines, and cookie sharing across client and server.
+3. Performance: Next.js allows Server Components for fast data fetching at the server level, combined with selective Client Components for interactive elements like maps and forms."
+
+Q3: What software architecture design pattern does your project follow?
+A3: "Our project follows a modern Full-Stack Component-Driven & Layered Architecture:
+- Presentation Layer: Next.js App Router pages and reusable Shadcn UI components.
+- Middleware / Controller Layer: `proxy.ts` (Next.js middleware) enforcing RBAC, and Route Handlers (`app/api/*`) validating incoming requests via Zod.
+- Service / Domain Logic Layer: Business logic functions encapsulated in route handlers and helper libraries (`lib/auth.ts`, `lib/prisma.ts`).
+- Data Access Layer: Prisma ORM abstracting PostgreSQL queries through strongly typed client models."
+
+--------------------------------------------------------------------------------
+CATEGORY 2: FRONTEND & UI/UX DESIGN
+--------------------------------------------------------------------------------
+
+Q4: Why did you use Tailwind CSS v4 and Shadcn UI instead of pre-packaged component libraries like Bootstrap or Material UI (MUI)?
+A4: "Bootstrap and MUI come with heavy default stylings and bundle overhead that make customization cumbersome and increase bundle size. Shadcn UI is not an npm dependency; it provides copy-and-paste primitives built on top of accessible Radix UI components that we directly own and style using Tailwind CSS. This gives us 100% design flexibility, accessibility compliance out of the box, and a clean, responsive aesthetic."
+
+Q5: What is the difference between Server Components and Client Components in your system? Where did you use each?
+A5: "In Next.js App Router:
+- Server Components render on the server, have direct secure access to server resources, and reduce the JavaScript bundle sent to the client. We use them for page shells, layout wrappers, and initial server-side data fetching.
+- Client Components (`'use client'`) run in the browser to handle interactivity, state (`useState`, `useEffect`), browser events, and libraries that require the DOM (such as Leaflet maps, Recharts, and @dnd-kit). For instance, our landing page, modals, and interactive maps explicitly use `'use client'`."
+
+Q6: How do you handle responsive design for mobile users?
+A6: "All UI components are built mobile-first using Tailwind CSS responsive breakpoints (`sm:`, `md:`, `lg:`, `xl:`). For navigation, we use collapsible sidebars and responsive sheet drawers (Vaul / Shadcn Sheet), allowing workers and clients to interact seamlessly on mobile devices or tablets."
+
+--------------------------------------------------------------------------------
+CATEGORY 3: BACKEND, API & DATA FLOW
+--------------------------------------------------------------------------------
+
+Q7: How do your API Route Handlers communicate with the database?
+A7: "Our Next.js Route Handlers (`app/api/**/route.ts`) act as RESTful endpoints. When a client triggers an action (such as `POST /api/client/bookings`), the route handler receives the request, parses the JSON payload, validates the input using Zod, interacts with PostgreSQL via the singleton Prisma Client instance (`@/lib/prisma`), and returns standardized JSON responses with appropriate HTTP status codes (200, 201, 400, 401, 403, 500)."
+
+Q8: How do you prevent multiple database connection leaks during development?
+A8: "In Next.js, Hot Module Replacement (HMR) re-executes server files on every code save, which can instantiate dozens of database connection pools. In `lib/prisma.ts`, we attach the PrismaClient instance to `globalThis`. If a connection already exists in the global scope, it reuses it instead of opening a new pool, preventing PostgreSQL pool exhaustion."
+
+--------------------------------------------------------------------------------
+CATEGORY 4: DATABASE, PRISMA ORM & DATA INTEGRITY
+--------------------------------------------------------------------------------
+
+Q9: Why did you choose PostgreSQL over a NoSQL database like MongoDB?
+A9: "HCSS is inherently relational. A single booking strictly ties together a Client (User), a Service, a Cleaner (Worker User), a Payment, a Review, and an Assignment status. Relational databases like PostgreSQL provide foreign key constraints, relational guarantees, and strict ACID transactions. In a financial and scheduling platform, transactional integrity is critical to avoid orphaned records or inconsistent payment statuses, which NoSQL does not guarantee by default."
+
+Q10: What are the key relationships in your Prisma schema?
+A10: "The schema includes:
+1. One-to-Many: User to Bookings (one client can create many bookings).
+2. One-to-Many: User to WorkerAssignments (one worker handles multiple assigned jobs over time).
+3. One-to-One: Booking to WorkerAssignment (each booking corresponds to exactly one assignment record).
+4. One-to-One: Booking to Payment (each booking has one associated payment record).
+5. One-to-One: Booking to Review (a client submits exactly one review per completed booking).
+6. One-to-Many: User to Sessions (cascade delete: deleting a user purges their active sessions)."
+
+Q11: Why are you using UUIDs instead of auto-incrementing integers for primary keys?
+A11: "Auto-incrementing IDs (1, 2, 3...) expose sequential information that poses security vulnerabilities (e.g., an attacker can guess the next booking ID or user count via Insecure Direct Object References). UUID v4 generates 128-bit globally unique alphanumeric strings, making them unpredictable and safe against enumeration attacks."
+
+--------------------------------------------------------------------------------
+CATEGORY 5: AUTHENTICATION, SECURITY & RBAC
+--------------------------------------------------------------------------------
+
+Q12: How does your authentication system work, and why did you choose database-backed sessions over JWT (JSON Web Tokens)?
+A12: "We implemented database-backed session authentication using a dedicated `Session` table:
+1. User logs in with email and password.
+2. Password is verified using `bcrypt.compare`.
+3. A unique session record is saved in PostgreSQL with a 7-day expiration timestamp (`expiresAt`).
+4. The `session_id` and `user_role` are stored in HTTP-Only, Secure, SameSite=Lax cookies.
+Why not stateless JWT?
+Stateless JWTs cannot be revoked immediately without complex token blacklisting. If an admin bans a fraudulent worker or client, a JWT remains valid until expiration. With database sessions, deleting the session record in PostgreSQL revokes access immediately."
+
+Q13: How does your Role-Based Access Control (RBAC) protect unauthorized routes?
+A13: "We use Next.js middleware in `proxy.ts`:
+- Any incoming request to `/admin/*`, `/client/*`, or `/worker/*` is evaluated before reaching the page component.
+- If there is no valid `session_id`, the user is immediately redirected to `/login`.
+- If a user with role `CLIENT` attempts to access `/admin` or `/worker`, the proxy detects the role mismatch and forces a redirect back to their authorized dashboard (`/client/booking-management`)."
+
+Q14: How are passwords secured in the database?
+A14: "Passwords are never saved in plaintext. During registration, passwords pass through `bcryptjs` with an automated salt round. Bcrypt includes a cryptographic work factor (adaptive hash function), rendering rainbow table and brute-force dictionary attacks ineffective."
+
+--------------------------------------------------------------------------------
+CATEGORY 6: CORE FEATURES (MAPS, DND, CHARTS, STATUS TRACKING)
+--------------------------------------------------------------------------------
+
+Q15: Why did you use Leaflet instead of Google Maps API?
+A15: "Google Maps API requires proprietary billing credentials, credit card verification, and incurs usage fees per map load and geocoding call. Leaflet, combined with OpenStreetMap tiles, is free, open-source, lightweight, and requires no external billing. It allows us to render interactive maps, capture marker drop coordinates (`latitude` and `longitude`), and calculate route maps without ongoing service costs."
+
+Q16: How does the Service Tracking feature work?
+A16: "When a booking is scheduled, its progression is driven by the `AssignmentStatus` and `BookingStatus` enums:
+1. Initial: PENDING (awaiting admin or worker confirmation).
+2. Dispatch: Worker assigned -> status becomes `ASSIGNED`.
+3. In Transit: Worker updates status to `ON_THE_WAY`.
+4. On-Site: Worker updates status to `ARRIVED`.
+5. Execution: Worker updates status to `IN_PROGRESS`.
+6. Completion: Worker updates status to `COMPLETED`, triggering payment settlement and client review prompt.
+The client-side tracking page polls or fetches the status for the given booking ID (`/api/client/bookings/tracking/[id]`) and renders a visual progress stepper and route map."
+
+Q17: What role does @dnd-kit play in your application?
+A17: "@dnd-kit is an accessible React drag-and-drop library used for interactive task organization—such as dragging worker assignments between different status columns (e.g., Unassigned -> Assigned) or reordering prioritized lists without reloading the page."
+
+Q18: How are the visual reports in the Admin dashboard generated?
+A18: "The Admin Reports module queries aggregated data from PostgreSQL (grouping bookings by date, service category, or payment status). This data is passed to `Recharts`, which renders responsive SVG graphs—such as interactive area charts and bar charts for revenue and booking volume over time."
+
+--------------------------------------------------------------------------------
+CATEGORY 7: SCALABILITY, CONCURRENCY & EDGE CASES
+--------------------------------------------------------------------------------
+
+Q19: How do you prevent double-booking a worker at the same date and time?
+A19: "Before an assignment is finalized, the system queries the `WorkerAssignment` table joined with `Booking`:
+- It checks if the worker has any existing assignment where `bookingDate` is identical and the new booking's `[startTime, endTime]` overlaps with an active job.
+- It also cross-references the worker's `WorkerAvailability` records for that day of the week to ensure the slot falls within their designated working hours. If a conflict exists, the assignment is rejected."
+
+Q20: What happens if a client cancels a booking?
+A20: "If a booking is cancelled:
+1. The `Booking.status` updates to `CANCELLED`.
+2. Any associated `WorkerAssignment` is updated or released so the worker's schedule opens up for new assignments.
+3. If payment was pre-authorized, the `Payment.paymentStatus` is flagged for refund or cancellation."
+
+Q21: How does the system handle high traffic or concurrency?
+A21: "Next.js handles static assets and caching efficiently, while PostgreSQL maintains connection pooling. For future horizontal scaling, database queries can leverage read-replicas, and background jobs (like email reminders or push notifications) can be offloaded to message queues (e.g., Redis / BullMQ)."
+
+--------------------------------------------------------------------------------
+CATEGORY 8: TRICKY / "TRAP" QUESTIONS & PRO ANSWERS
+--------------------------------------------------------------------------------
+
+Q22: TRAP QUESTION: "Why didn't you use NextAuth.js (Auth.js) since it is standard for Next.js?"
+A22: PRO ANSWER: "While NextAuth is popular for third-party OAuth (Sign in with Google/GitHub), it introduces unnecessary abstraction and rigid schema conventions for traditional multi-role credentials systems. Building our own session authentication using Prisma gave us 100% control over our User and Session schema, direct control over session expiry and immediate revocation, and eliminated third-party library version breaking changes."
+
+Q23: TRAP QUESTION: "Is your map tracking real-time GPS tracking (like Uber/Grab) or status-based tracking?"
+A23: PRO ANSWER: "It is currently milestone status-based tracking with coordinate mapping. The client selects their exact geographic location coordinates (lat/long) via the Leaflet LocationPicker. Cleaners manually update their milestone statuses (On The Way, Arrived, In Progress, Completed). We consciously chose this milestone model for Phase 1 to conserve mobile battery life, respect cleaner privacy, and avoid heavy WebSocket GPS streaming infrastructure, while still providing clients complete visibility of service progress."
+
+Q24: TRAP QUESTION: "How do you handle SQL Injections if a malicious user inputs SQL commands into the booking address or login fields?"
+A24: PRO ANSWER: "SQL injection is virtually impossible in our setup because we do not write raw concatenated SQL queries. We use Prisma ORM, which automatically parameterizes all queries under the hood. Furthermore, all user inputs are validated against strict Zod schemas before being passed to Prisma."
+
+Q25: TRAP QUESTION: "What are the current limitations of your system and what would you add next?"
+A25: PRO ANSWER: "The current system successfully automates core scheduling, dispatch, role permissions, and reporting. The primary limitations we plan to address in future versions are:
+1. Live WebSockets: Implementing Pusher or Socket.io for instantaneous instant notifications without manual page polling.
+2. Real Payment Gateway Webhooks: Integrating live PayMongo or Stripe API webhooks to automatically verify GCash and credit card transactions in real-time.
+3. Native Mobile Application: Wrapping the worker portal into React Native / PWA for offline push notifications and one-tap GPS navigation."
+
+
+================================================================================
+6. KEY DEFENSE TIPS FOR THE PANEL PRESENTATION
+================================================================================
+1. KNOW YOUR SCHEMA COLD: Be ready to draw or explain the relationship between User, Booking, WorkerAssignment, and Payment on the whiteboard or slides.
+2. DIFFERENTIATE ROLES: When demonstrating, keep three separate browser windows or tabs open (one for Admin, one for Client, one for Worker) to show the end-to-end lifecycle in real time:
+   - Client books -> Admin assigns cleaner -> Cleaner accepts and changes status -> Client sees live status update -> Client leaves review.
+3. EXPLAIN "WHY", NOT JUST "WHAT": When asked about any technology, never just say "it was easy to use." Always mention:
+   - Type-safety (TypeScript)
+   - ACID compliance (PostgreSQL)
+   - Zero licensing cost (Leaflet / OpenStreetMap)
+   - Security (HTTP-only cookies + bcryptjs)
+4. CONFIDENCE WITH TRADEOFFS: Acknowledge design tradeoffs honestly (e.g., milestone status tracking vs continuous GPS streaming). Panels respect engineers who justify their technical decisions based on scope, resources, and privacy.
+
+================================================================================
+END OF FILE - HOME CLEANING SERVICE SYSTEM (HCSS) DEFENSE CHEATSHEET
+================================================================================

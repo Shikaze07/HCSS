@@ -24,6 +24,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
+import dynamic from "next/dynamic";
+
+const RouteMap = dynamic(
+    () => import("@/components/maps/RouteMap").then((m) => m.RouteMap),
+    { ssr: false, loading: () => <div className="h-64 w-full rounded-lg border bg-muted/40 animate-pulse" /> }
+);
 
 interface Client {
     firstName: string;
@@ -46,6 +52,8 @@ interface Booking {
     startTime: string;
     endTime: string;
     address: string;
+    latitude: number | null;
+    longitude: number | null;
     duration: number;
     totalAmount: number;
     service: Service;
@@ -158,7 +166,7 @@ export default function TaskStatusPage() {
             setSelectedAssignment(updated);
 
             if (newStatus === "COMPLETED") {
-                toast.success("Great job! Cleaning assignment completed successfully! ✨");
+                toast.success("Great job! Cleaning assignment completed successfully!");
             }
         } catch (error) {
             console.error("Error updating status:", error);
@@ -358,7 +366,7 @@ export default function TaskStatusPage() {
                                     className="gap-2 bg-amber-600 hover:bg-amber-700 text-white font-bold"
                                 >
                                     {updating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Truck className="w-4 h-4" />}
-                                    I Am On The Way 🚗
+                                    I Am On The Way
                                 </Button>
                             )}
 
@@ -369,7 +377,7 @@ export default function TaskStatusPage() {
                                     className="gap-2 bg-purple-600 hover:bg-purple-700 text-white font-bold"
                                 >
                                     {updating ? <Loader2 className="w-4 h-4 animate-spin" /> : <MapPinCheck className="w-4 h-4" />}
-                                    I Have Arrived at Location 📍
+                                    I Have Arrived at Location
                                 </Button>
                             )}
 
@@ -380,7 +388,7 @@ export default function TaskStatusPage() {
                                     className="gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold"
                                 >
                                     {updating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
-                                    Start Cleaning Now 🧼
+                                    Start Cleaning Now
                                 </Button>
                             )}
 
@@ -391,7 +399,7 @@ export default function TaskStatusPage() {
                                     className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
                                 >
                                     {updating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4 stroke-[3]" />}
-                                    Mark as Completed ✓
+                                    Mark as Completed
                                 </Button>
                             )}
                         </div>
@@ -445,10 +453,17 @@ export default function TaskStatusPage() {
                                     <MapPin className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                                     <span>{b.address}</span>
                                 </div>
+                                {b.latitude != null && b.longitude != null ? (
+                                    <RouteMap latitude={b.latitude} longitude={b.longitude} address={b.address} />
+                                ) : (
+                                    <p className="text-xs text-muted-foreground">The client did not pin a map location for this booking.</p>
+                                )}
                                 <a
-                                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                                        b.address
-                                    )}`}
+                                    href={`https://www.google.com/maps/search/?api=1&query=${
+                                        b.latitude != null && b.longitude != null
+                                            ? `${b.latitude},${b.longitude}`
+                                            : encodeURIComponent(b.address)
+                                    }`}
                                     target="_blank"
                                     rel="noreferrer"
                                     className="text-xs text-primary font-bold flex items-center gap-1 hover:underline"

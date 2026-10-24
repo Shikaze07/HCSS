@@ -1,11 +1,32 @@
 import { NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
+import { checkWorkerAvailability } from "@/lib/worker-availability"
 
 export async function PATCH(req, { params }) {
     try {
         const { id } = await params
         const body = await req.json()
         const { workerId, status } = body
+
+        const current = await prisma.workerAssignment.findUnique({
+            where: { id },
+            select: { workerId: true, booking: { select: { id: true, startTime: true, endTime: true } } },
+        })
+
+        if (!current) {
+            return NextResponse.json({ error: "Assignment not found" }, { status: 404 })
+        }
+
+        // Only check the schedule when moving the job to a different worker
+        if (workerId && workerId !== current.workerId) {
+            const conflict = await checkWorkerAvailability(workerId, current.booking)
+            if (conflict) {
+                return NextResponse.json(
+                    { error: `This worker is not available for this booking: ${conflict}` },
+                    { status: 400 }
+                )
+            }
+        }
 
         const updatedAssignment = await prisma.workerAssignment.update({
             where: { id },

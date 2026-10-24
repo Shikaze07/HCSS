@@ -32,9 +32,15 @@ export function AddAssignmentModal({ onAssignmentAdded }) {
     useEffect(() => {
         if (open) {
             fetchBookings()
-            fetchWorkers()
         }
     }, [open])
+
+    // Re-check worker schedules whenever a different booking is picked
+    useEffect(() => {
+        if (open) {
+            fetchWorkers(formData.bookingId)
+        }
+    }, [open, formData.bookingId])
 
     const fetchBookings = async () => {
         try {
@@ -46,11 +52,19 @@ export function AddAssignmentModal({ onAssignmentAdded }) {
         }
     }
 
-    const fetchWorkers = async () => {
+    const fetchWorkers = async (bookingId) => {
         try {
-            const res = await fetch("/api/admin/workers")
+            const res = await fetch(bookingId ? `/api/admin/workers?bookingId=${bookingId}` : "/api/admin/workers")
             const data = await res.json()
-            if (res.ok) setWorkers(data)
+            if (res.ok) {
+                setWorkers(data)
+                // Clear the picked worker if they can't take the newly selected booking
+                setFormData((prev) =>
+                    data.some((w) => w.id === prev.workerId && w.available !== false)
+                        ? prev
+                        : { ...prev, workerId: "" }
+                )
+            }
         } catch (error) {
             console.error("Error fetching workers:", error)
         }
@@ -145,13 +159,23 @@ export function AddAssignmentModal({ onAssignmentAdded }) {
                                     <SelectItem disabled value="none">No active workers available</SelectItem>
                                 ) : (
                                     workers.map((worker) => (
-                                        <SelectItem key={worker.id} value={worker.id}>
+                                        <SelectItem key={worker.id} value={worker.id} disabled={worker.available === false}>
                                             {worker.firstName} {worker.lastName}
+                                            {worker.available === false && (
+                                                <span className="text-xs text-muted-foreground"> ({worker.unavailableReason})</span>
+                                            )}
                                         </SelectItem>
                                     ))
                                 )}
                             </SelectContent>
                         </Select>
+                        {formData.bookingId
+                            ? workers.length > 0 && workers.every((w) => w.available === false) && (
+                                  <p className="text-xs text-rose-600">No workers are available for this booking's schedule.</p>
+                              )
+                            : (
+                                  <p className="text-xs text-muted-foreground">Select a booking first to see which workers are available.</p>
+                              )}
                     </div>
 
                     <div className="flex gap-3 pt-4 justify-end">

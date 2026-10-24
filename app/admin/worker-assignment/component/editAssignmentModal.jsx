@@ -27,10 +27,10 @@ export function EditAssignmentModal({ assignment, open, setOpen, onAssignmentUpd
     })
 
     useEffect(() => {
-        if (open) {
-            fetchWorkers()
+        if (open && assignment) {
+            fetchWorkers(assignment.bookingId)
         }
-    }, [open])
+    }, [open, assignment])
 
     useEffect(() => {
         if (assignment) {
@@ -41,9 +41,9 @@ export function EditAssignmentModal({ assignment, open, setOpen, onAssignmentUpd
         }
     }, [assignment])
 
-    const fetchWorkers = async () => {
+    const fetchWorkers = async (bookingId) => {
         try {
-            const res = await fetch("/api/admin/workers")
+            const res = await fetch(`/api/admin/workers?bookingId=${bookingId}`)
             const data = await res.json()
             if (res.ok) setWorkers(data)
         } catch (error) {
@@ -115,11 +115,18 @@ export function EditAssignmentModal({ assignment, open, setOpen, onAssignmentUpd
                                 <SelectValue placeholder="Select a worker" />
                             </SelectTrigger>
                             <SelectContent>
-                                {workers.map((worker) => (
-                                    <SelectItem key={worker.id} value={worker.id}>
-                                        {worker.firstName} {worker.lastName}
-                                    </SelectItem>
-                                ))}
+                                {workers.map((worker) => {
+                                    // The currently assigned worker stays selectable
+                                    const blocked = worker.available === false && worker.id !== assignment.workerId
+                                    return (
+                                        <SelectItem key={worker.id} value={worker.id} disabled={blocked}>
+                                            {worker.firstName} {worker.lastName}
+                                            {blocked && (
+                                                <span className="text-xs text-muted-foreground"> ({worker.unavailableReason})</span>
+                                            )}
+                                        </SelectItem>
+                                    )
+                                })}
                             </SelectContent>
                         </Select>
                     </div>

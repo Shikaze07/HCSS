@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
+import { checkWorkerAvailability } from "@/lib/worker-availability"
 
 export async function GET() {
     try {
@@ -47,6 +48,23 @@ export async function POST(req) {
         if (existing) {
             return NextResponse.json(
                 { error: "This booking is already assigned to a worker" },
+                { status: 400 }
+            )
+        }
+
+        const booking = await prisma.booking.findUnique({
+            where: { id: bookingId },
+            select: { id: true, startTime: true, endTime: true },
+        })
+
+        if (!booking) {
+            return NextResponse.json({ error: "Booking not found" }, { status: 404 })
+        }
+
+        const conflict = await checkWorkerAvailability(workerId, booking)
+        if (conflict) {
+            return NextResponse.json(
+                { error: `This worker is not available for this booking: ${conflict}` },
                 { status: 400 }
             )
         }

@@ -70,11 +70,14 @@ export default function WorkerSchedulePage() {
                 setAvailability(data.availability || []);
 
                 if (data.availability && data.availability.length > 0) {
-                    const newConfig = { ...scheduleConfig };
+                    // Once saved, any day without a working window is a day off
+                    const newConfig = Object.fromEntries(
+                        Object.entries(scheduleConfig).map(([day, val]) => [day, { ...val, enabled: false }])
+                    );
                     data.availability.forEach((avail: any) => {
                         const start = new Date(avail.startTime).getHours();
                         const end = new Date(avail.endTime).getHours();
-                        if (newConfig[avail.day]) {
+                        if (newConfig[avail.day] && end > start) {
                             newConfig[avail.day] = { enabled: true, start, end };
                         }
                     });
@@ -138,6 +141,10 @@ export default function WorkerSchedulePage() {
     );
 
     const completedAssignments = assignments.filter((a) => a.status === "COMPLETED");
+
+    const workingDaysCount = availability.filter(
+        (a) => new Date(a.endTime).getTime() > new Date(a.startTime).getTime()
+    ).length;
 
     const getStatusBadge = (status: string) => {
         switch (status) {
@@ -262,7 +269,7 @@ export default function WorkerSchedulePage() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">
-                            {availability.length > 0 ? `${availability.length} days/wk` : "Not Configured"}
+                            {availability.length > 0 ? `${workingDaysCount} days/wk` : "Not Configured"}
                         </div>
                         <p className="text-xs text-muted-foreground mt-1">
                             Active working roster

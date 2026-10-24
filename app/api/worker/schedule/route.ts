@@ -92,20 +92,19 @@ export async function POST(req: Request) {
             where: { workerId },
         });
 
+        // Every day is saved so unchecked days stay unchecked; a day off is stored with startTime === endTime
         for (const item of schedules) {
-            if (item.enabled) {
-                const startTime = new Date(1970, 0, 1, item.startHour || 8, 0);
-                const endTime = new Date(1970, 0, 1, item.endHour || 17, 0);
+            const startTime = new Date(1970, 0, 1, item.startHour || 8, 0);
+            const endTime = item.enabled ? new Date(1970, 0, 1, item.endHour || 17, 0) : startTime;
 
-                await prisma.workerAvailability.create({
-                    data: {
-                        workerId,
-                        day: item.day,
-                        startTime,
-                        endTime,
-                    },
-                });
-            }
+            await prisma.workerAvailability.create({
+                data: {
+                    workerId,
+                    day: item.day,
+                    startTime,
+                    endTime,
+                },
+            });
         }
 
         const updatedAvailability = await prisma.workerAvailability.findMany({
