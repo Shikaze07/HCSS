@@ -92,9 +92,9 @@ export function LoginModal({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[420px] p-0 overflow-hidden rounded-xl border-[#e8e0d5] bg-white">
-                <DialogHeader className="p-6 pb-4 border-b border-[#f0ebe4] bg-[#faf8f5] text-center flex flex-col items-center">
-                    <div className="w-14 h-14 rounded-xl bg-white border border-[#e8e0d5] p-2 flex items-center justify-center shadow-sm mb-2">
+            <DialogContent className="sm:max-w-[420px] p-0 overflow-hidden rounded-xl border-[#e8e0d5] dark:border-[#38261d] bg-white dark:bg-[#1a130f] text-[#2c1810] dark:text-[#faf0e6]">
+                <DialogHeader className="p-6 pb-4 border-b border-[#f0ebe4] dark:border-[#2e1f18] bg-[#faf8f5] dark:bg-[#150e0b] text-center flex flex-col items-center">
+                    <div className="w-14 h-14 rounded-xl bg-white dark:bg-[#251b16] border border-[#e8e0d5] dark:border-[#38261d] p-2 flex items-center justify-center shadow-sm mb-2">
                         <Image
                             src="/logohcss.png"
                             alt="HCSS Logo"
@@ -104,18 +104,18 @@ export function LoginModal({
                             priority
                         />
                     </div>
-                    <DialogTitle className="text-2xl font-bold text-[#2c1810]">
+                    <DialogTitle className="text-2xl font-bold text-[#2c1810] dark:text-[#faf0e6]">
                         Welcome Back
                     </DialogTitle>
-                    <DialogDescription className="text-xs text-[#8a7060]">
+                    <DialogDescription className="text-xs text-[#8a7060] dark:text-[#b89e90]">
                         Enter your credentials to access your HCSS account
                     </DialogDescription>
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="p-6 space-y-4">
                     <div className="space-y-2">
-                        <Label htmlFor="login-email" className="text-xs font-semibold uppercase tracking-wider text-[#2c1810] flex items-center gap-1.5">
-                            <Mail className="h-3.5 w-3.5 text-amber-600" />
+                        <Label htmlFor="login-email" className="text-xs font-semibold uppercase tracking-wider text-[#2c1810] dark:text-[#e8d5c4] flex items-center gap-1.5">
+                            <Mail className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
                             Email Address
                         </Label>
                         <Input
@@ -126,13 +126,13 @@ export function LoginModal({
                             onChange={(e) => setEmail(e.target.value)}
                             required
                             disabled={isLoading}
-                            className="rounded-none border-[#e8e0d5] bg-muted/20 focus-visible:ring-amber-600 h-11"
+                            className="rounded-none border-[#e8e0d5] dark:border-[#38261d] bg-muted/20 dark:bg-[#251b16] text-[#2c1810] dark:text-[#faf0e6] dark:placeholder:text-[#8a7060] focus-visible:ring-amber-600 h-11"
                         />
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="login-password" className="text-xs font-semibold uppercase tracking-wider text-[#2c1810] flex items-center gap-1.5">
-                            <Lock className="h-3.5 w-3.5 text-amber-600" />
+                        <Label htmlFor="login-password" className="text-xs font-semibold uppercase tracking-wider text-[#2c1810] dark:text-[#e8d5c4] flex items-center gap-1.5">
+                            <Lock className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
                             Password
                         </Label>
                         <div className="relative">
@@ -144,12 +144,12 @@ export function LoginModal({
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
                                 disabled={isLoading}
-                                className="rounded-none border-[#e8e0d5] bg-muted/20 pr-10 focus-visible:ring-amber-600 h-11"
+                                className="rounded-none border-[#e8e0d5] dark:border-[#38261d] bg-muted/20 dark:bg-[#251b16] text-[#2c1810] dark:text-[#faf0e6] dark:placeholder:text-[#8a7060] pr-10 focus-visible:ring-amber-600 h-11"
                             />
                             <button
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-amber-600 transition-colors"
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
                             >
                                 {showPassword ? (
                                     <EyeOff className="h-4 w-4" />
@@ -164,14 +164,14 @@ export function LoginModal({
                         <Button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full bg-[#2c1810] hover:bg-amber-700 text-[#faf8f5] font-bold tracking-widest text-xs uppercase h-11 rounded-none shadow-md transition-all duration-300"
+                            className="w-full bg-[#2c1810] hover:bg-amber-700 dark:bg-amber-600 dark:hover:bg-amber-500 text-[#faf8f5] dark:text-white font-bold tracking-widest text-xs uppercase h-11 rounded-none shadow-md transition-all duration-300"
                         >
                             {isLoading ? "Logging in..." : "Log In"}
                             <ArrowRight className="h-3.5 w-3.5 ml-2" />
                         </Button>
                     </div>
 
-                    <div className="text-center pt-3 border-t border-[#f0ebe4] text-xs text-[#8a7060]">
+                    <div className="text-center pt-3 border-t border-[#f0ebe4] dark:border-[#2e1f18] text-xs text-[#8a7060] dark:text-[#b89e90]">
                         Don&apos;t have an account?{" "}
                         <button
                             type="button"
@@ -181,7 +181,7 @@ export function LoginModal({
                                     onSwitchToSignUp()
                                 }
                             }}
-                            className="font-bold text-amber-700 hover:text-amber-800 hover:underline transition-colors cursor-pointer"
+                            className="font-bold text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 hover:underline transition-colors cursor-pointer"
                         >
                             Sign Up to Book
                         </button>

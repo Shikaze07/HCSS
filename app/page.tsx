@@ -24,6 +24,7 @@ import {
 } from 'lucide-react'
 import { CustomerSignUpModal } from "@/components/CustomerSignUpModal"
 import { LoginModal } from "@/components/LoginModal"
+import { ModeToggle } from "@/components/mode-toggle"
 
 const stats = [
   { value: "2,400+", label: "Happy Homes Cleaned" },
@@ -189,44 +190,30 @@ const HomePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#faf8f5] text-[#1a1410] font-sans selection:bg-amber-100 selection:text-amber-900 overflow-x-hidden">
+    <div className="min-h-screen bg-[#faf8f5] dark:bg-[#120d0a] text-[#1a1410] dark:text-[#f5ede6] font-sans selection:bg-amber-100 dark:selection:bg-amber-900/40 selection:text-amber-900 dark:selection:text-amber-200 overflow-x-hidden transition-colors duration-300">
 
       {/* ─── NAVIGATION ─── */}
-      <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? 'bg-[#faf8f5]/95 backdrop-blur-md border-b border-[#e8e0d5] py-3' : 'bg-transparent py-5'
+      <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? 'bg-[#faf8f5]/95 dark:bg-[#120d0a]/95 backdrop-blur-md border-b border-[#e8e0d5] dark:border-[#332219] py-3' : 'bg-transparent py-5'
         }`}>
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
           <div className="flex items-center gap-3 group cursor-pointer" onClick={() => router.push('/')}>
             <Image src="/logohcss.png" alt="HCSS Logo" width={42} height={42} className="object-contain group-hover:scale-105 transition-transform" priority />
-            <span className="font-display font-bold text-2xl tracking-tighter text-[#2c1810]">HCSS</span>
+            <span className="font-display font-bold text-2xl tracking-tighter text-[#2c1810] dark:text-amber-100">HCSS</span>
           </div>
 
           <div className="hidden md:flex gap-10 items-center">
             {['Services', 'How It Works', 'About', 'Contact'].map(item => (
               <Link key={item} href={`#${item.toLowerCase().replace(/\s+/g, '-')}`}
-                className="text-sm font-semibold tracking-wide text-[#4a3828] hover:text-[#c8822a] transition-colors duration-300">
+                className="text-sm font-semibold tracking-wide text-[#4a3828] dark:text-[#d6c4b6] hover:text-[#c8822a] dark:hover:text-amber-400 transition-colors duration-300">
                 {item}
               </Link>
             ))}
           </div>
 
-          <div className="flex gap-4 items-center">
-            {/* {user ? (
-              // <Link href={getDashboardUrl(user.role)}>
-              //   <Button variant="outline" className="hidden sm:flex border-[#2c1810] text-[#2c1810] hover:bg-[#2c1810] hover:text-white transition-all duration-300 rounded-none h-10 px-6 font-bold tracking-widest text-[11px] uppercase">
-              //     Dashboard
-              //   </Button>
-              // </Link>
-            ) : (
-              <Link href="/login">
-                <Button variant="outline" className="hidden sm:flex border-[#2c1810] text-[#2c1810] hover:bg-[#2c1810] hover:text-white transition-all duration-300 rounded-none h-10 px-6 font-bold tracking-widest text-[11px] uppercase">
-                  Login
-                </Button>
-              </Link>
-            )} */}
-
+          <div className="flex gap-3 sm:gap-4 items-center">
             {user ? (
               <Link href={getDashboardUrl(user.role)}>
-                <Button variant="outline" className="hidden sm:flex border-[#2c1810] text-[#2c1810] hover:bg-[#2c1810] hover:text-white transition-all duration-300 rounded-none h-10 px-6 font-bold tracking-widest text-[11px] uppercase">
+                <Button variant="outline" className="hidden sm:flex border-[#2c1810] text-[#2c1810] hover:bg-[#2c1810] hover:text-white dark:border-amber-400/50 dark:text-amber-100 dark:hover:bg-amber-600 dark:hover:text-white dark:bg-transparent transition-all duration-300 rounded-none h-10 px-6 font-bold tracking-widest text-[11px] uppercase">
                   Dashboard
                 </Button>
               </Link>
@@ -234,17 +221,18 @@ const HomePage = () => {
               <Button
                 variant="outline"
                 onClick={() => setLoginModalOpen(true)}
-                className="hidden sm:flex border-[#2c1810] text-[#2c1810] hover:bg-[#2c1810] hover:text-white transition-all duration-300 rounded-none h-10 px-6 font-bold tracking-widest text-[11px] uppercase"
+                className="hidden sm:flex border-[#2c1810] text-[#2c1810] hover:bg-[#2c1810] hover:text-white dark:border-amber-400/50 dark:text-amber-100 dark:hover:bg-amber-600 dark:hover:text-white dark:bg-transparent transition-all duration-300 rounded-none h-10 px-6 font-bold tracking-widest text-[11px] uppercase"
               >
                 Login
               </Button>
             )}
             <Button
               onClick={handleBookingClick}
-              className="bg-[#2c1810] text-[#faf8f5]  transition-all duration-300 rounded-none h-10 px-6 font-bold tracking-widest text-[11px] uppercase shadow-md shadow-black/5 hover:shadow-amber-500/20 hover:-translate-y-0.5"
+              className="bg-[#2c1810] text-[#faf8f5] dark:bg-amber-600 dark:text-white dark:hover:bg-amber-500 transition-all duration-300 rounded-none h-10 px-6 font-bold tracking-widest text-[11px] uppercase shadow-md shadow-black/5 hover:shadow-amber-500/20 hover:-translate-y-0.5"
             >
               {user?.role === 'CLIENT' ? 'Book Now' : 'Sign Up & Book'}
             </Button>
+            <ModeToggle />
           </div>
         </div>
       </nav>
@@ -255,12 +243,12 @@ const HomePage = () => {
         {/* Background Visuals */}
         <div className="absolute inset-0 z-0 pointer-events-none">
           <div className="absolute top-0 right-0 w-[60%] h-[80%] bg-[radial-gradient(ellipse_at_center,rgba(200,130,42,0.1)_0%,transparent_70%)]" />
-          <div className="absolute bottom-0 left-0 w-[50%] h-[60%] bg-[radial-gradient(ellipse_at_center,rgba(44,24,16,0.06)_0%,transparent_70%)]" />
+          <div className="absolute bottom-0 left-0 w-[50%] h-[60%] bg-[radial-gradient(ellipse_at_center,rgba(44,24,16,0.06)_0%,transparent_70%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(200,130,42,0.06)_0%,transparent_70%)]" />
 
           {/* Decorative Elements */}
-          <div className="absolute top-[15%] right-[5%] opacity-[0.03] scale-150 md:scale-100">
-            <div className="w-96 h-96 border border-[#2c1810] rounded-full" />
-            <div className="absolute top-10 left-10 w-72 h-72 border border-[#2c1810] rounded-full" />
+          <div className="absolute top-[15%] right-[5%] opacity-[0.03] dark:opacity-[0.06] scale-150 md:scale-100">
+            <div className="w-96 h-96 border border-[#2c1810] dark:border-amber-200 rounded-full" />
+            <div className="absolute top-10 left-10 w-72 h-72 border border-[#2c1810] dark:border-amber-200 rounded-full" />
           </div>
         </div>
 
@@ -268,40 +256,40 @@ const HomePage = () => {
 
           {/* Hero Content */}
           <div className="animate-in fade-in slide-in-from-left-8 duration-1000">
-            <div className="inline-flex items-center gap-2 bg-amber-600/10 border border-amber-600/20 px-4 py-1.5 mb-8 rounded-none">
-              <div className="w-1.5 h-1.5 rounded-full bg-amber-600 animate-pulse" />
-              <span className="text-[10px] font-bold tracking-[3px] uppercase text-amber-700">Trusted Home Care</span>
+            <div className="inline-flex items-center gap-2 bg-amber-600/10 border border-amber-600/20 dark:bg-amber-500/15 dark:border-amber-500/30 px-4 py-1.5 mb-8 rounded-none">
+              <div className="w-1.5 h-1.5 rounded-full bg-amber-600 dark:bg-amber-400 animate-pulse" />
+              <span className="text-[10px] font-bold tracking-[3px] uppercase text-amber-700 dark:text-amber-300">Trusted Home Care</span>
             </div>
 
-            <h1 className="font-display text-6xl md:text-7xl lg:text-8xl font-black leading-[1] mb-8 italic text-[#2c1810] tracking-tight">
+            <h1 className="font-display text-6xl md:text-7xl lg:text-8xl font-black leading-[1] mb-8 italic text-[#2c1810] dark:text-[#fbf4ee] tracking-tight">
               Your Home, <br />
-              <span className="text-amber-600 translate-x-4 inline-block">Brilliantly</span> <br />
+              <span className="text-amber-600 dark:text-amber-500 translate-x-4 inline-block">Brilliantly</span> <br />
               Clean.
             </h1>
 
-            <p className="text-lg md:text-xl text-[#6a5444] mb-12 max-w-lg leading-relaxed font-light">
+            <p className="text-lg md:text-xl text-[#6a5444] dark:text-[#c4aba0] mb-12 max-w-lg leading-relaxed font-light">
               Experience the pinnacle of professional cleaning. Vetted pros, real-time tracking, and a spotless sanctuary — booked in under 3 minutes.
             </p>
 
             {/* Simple Search/Booking Bar */}
-            <div className="bg-white border border-[#e8e0d5] p-6 shadow-2xl shadow-[#2c1810]/5 max-w-xl group">
-              <p className="text-[10px] font-bold tracking-[2.5px] uppercase text-amber-600 mb-4 flex items-center gap-2">
+            <div className="bg-white dark:bg-[#1c1511] border border-[#e8e0d5] dark:border-[#38261d] p-6 shadow-2xl shadow-[#2c1810]/5 dark:shadow-black/40 max-w-xl group">
+              <p className="text-[10px] font-bold tracking-[2.5px] uppercase text-amber-600 dark:text-amber-400 mb-4 flex items-center gap-2">
                 <Clock className="w-3 h-3" /> Get Started Instantly
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
-                <select className="flex-1 bg-transparent border-[#e8e0d5] px-4 py-3 text-sm focus:ring-1 focus:ring-amber-600 transition-all outline-none rounded-none cursor-pointer hover:border-amber-400">
-                  <option>Select a Service</option>
+                <select className="flex-1 bg-transparent border border-[#e8e0d5] dark:border-[#38261d] text-[#2c1810] dark:text-[#faf0e6] px-4 py-3 text-sm focus:ring-1 focus:ring-amber-600 transition-all outline-none rounded-none cursor-pointer hover:border-amber-400">
+                  <option className="bg-white dark:bg-[#1c1511] text-[#2c1810] dark:text-[#faf0e6]">Select a Service</option>
                   {isLoading ? (
-                    <option disabled>Loading services...</option>
+                    <option disabled className="bg-white dark:bg-[#1c1511] text-[#2c1810] dark:text-[#faf0e6]">Loading services...</option>
                   ) : dbServices.length > 0 ? (
                     dbServices.map(s => (
-                      <option key={s.id} value={s.id}>{s.name} - ₱{s.price}</option>
+                      <option key={s.id} value={s.id} className="bg-white dark:bg-[#1c1511] text-[#2c1810] dark:text-[#faf0e6]">{s.name} - ₱{s.price}</option>
                     ))
                   ) : (
                     <>
-                      <option>Deep Home Cleaning</option>
-                      <option>Regular Maintenance</option>
-                      <option>Move-In / Move-Out</option>
+                      <option className="bg-white dark:bg-[#1c1511] text-[#2c1810] dark:text-[#faf0e6]">Deep Home Cleaning</option>
+                      <option className="bg-white dark:bg-[#1c1511] text-[#2c1810] dark:text-[#faf0e6]">Regular Maintenance</option>
+                      <option className="bg-white dark:bg-[#1c1511] text-[#2c1810] dark:text-[#faf0e6]">Move-In / Move-Out</option>
                     </>
                   )}
                 </select>
@@ -321,8 +309,8 @@ const HomePage = () => {
                 { label: "Guaranteed Satisfaction", icon: <CheckCircle2 className="w-4 h-4" /> }
               ].map((item, i) => (
                 <div key={i} className="flex items-center gap-2">
-                  <span className="text-amber-700">{item.icon}</span>
-                  <span className="text-[11px] font-bold uppercase tracking-widest">{item.label}</span>
+                  <span className="text-amber-700 dark:text-amber-400">{item.icon}</span>
+                  <span className="text-[11px] font-bold uppercase tracking-widest text-[#2c1810] dark:text-[#d6c4b6]">{item.label}</span>
                 </div>
               ))}
             </div>
@@ -331,7 +319,7 @@ const HomePage = () => {
           {/* Hero Visual Card Stack */}
           <div className="hidden lg:block relative h-[600px] animate-in fade-in slide-in-from-right-8 duration-1000 delay-300">
             {/* Background Card */}
-            <div className="absolute top-[10%] right-0 w-[85%] bg-[#2c1810] text-[#faf8f5] p-10 rotate-3 shadow-2xl z-0 transform hover:rotate-1 transition-transform duration-700">
+            <div className="absolute top-[10%] right-0 w-[85%] bg-[#2c1810] dark:bg-[#1a110d] border border-amber-900/30 text-[#faf8f5] p-10 rotate-3 shadow-2xl z-0 transform hover:rotate-1 transition-transform duration-700">
               <p className="text-[10px] font-bold tracking-[3px] uppercase opacity-40 mb-10">System Interaction</p>
               <h3 className="font-display text-3xl mb-4">Deep Clean Assigned</h3>
               <p className="text-sm opacity-60 mb-10 leading-relaxed font-light">Your professional cleaner, Maria C., is currently en route to your location in Quezon City.</p>
@@ -345,22 +333,22 @@ const HomePage = () => {
             </div>
 
             {/* Foreground Card */}
-            <div className="absolute top-[40%] -left-10 w-[85%] bg-white border border-[#e8e0d5] p-10 -rotate-2 shadow-2xl z-10 transform hover:-rotate-4 transition-transform duration-700">
+            <div className="absolute top-[40%] -left-10 w-[85%] bg-white dark:bg-[#1c1511] border border-[#e8e0d5] dark:border-[#38261d] p-10 -rotate-2 shadow-2xl z-10 transform hover:-rotate-4 transition-transform duration-700">
               <div className="flex justify-between items-start mb-8">
                 <div>
-                  <p className="text-[10px] font-bold tracking-[3px] uppercase text-amber-600 mb-2">Recent Review</p>
+                  <p className="text-[10px] font-bold tracking-[3px] uppercase text-amber-600 dark:text-amber-400 mb-2">Recent Review</p>
                   <div className="flex gap-0.5">
                     {[1, 2, 3, 4, 5].map(star => <Star key={star} className="w-4 h-4 fill-amber-500 text-amber-500" />)}
                   </div>
                 </div>
                 <div className="text-4xl grayscale opacity-40">🏆</div>
               </div>
-              <p className="font-display text-2xl italic leading-relaxed mb-6 text-[#2c1810]">"Absolutely spotless. The system made it so easy to track Maria's arrival. Highly recommend!"</p>
+              <p className="font-display text-2xl italic leading-relaxed mb-6 text-[#2c1810] dark:text-[#faf0e6]">"Absolutely spotless. The system made it so easy to track Maria's arrival. Highly recommend!"</p>
               <div className="flex items-center gap-3">
                 <div className="w-0.5 h-10 bg-amber-600" />
                 <div>
-                  <p className="text-sm font-bold text-[#2c1810]">ANNA L.</p>
-                  <p className="text-[10px] tracking-wider text-[#8a7060] font-medium uppercase">Koronadal City, South Cotabato</p>
+                  <p className="text-sm font-bold text-[#2c1810] dark:text-[#faf0e6]">ANNA L.</p>
+                  <p className="text-[10px] tracking-wider text-[#8a7060] dark:text-[#b89e90] font-medium uppercase">Koronadal City, South Cotabato</p>
                 </div>
               </div>
             </div>
@@ -383,12 +371,12 @@ const HomePage = () => {
       </section>
 
       {/* ─── SERVICES ─── */}
-      <section id="services" className="py-32 bg-[#faf8f5] relative overflow-hidden">
+      <section id="services" className="py-32 bg-[#faf8f5] dark:bg-[#120d0a] relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 relative z-10">
           <div className="max-w-2xl mx-auto text-center mb-24">
-            <h2 className="text-[10px] font-bold tracking-[5px] uppercase text-amber-600 mb-4">Service Menu</h2>
+            <h2 className="text-[10px] font-bold tracking-[5px] uppercase text-amber-600 dark:text-amber-400 mb-4">Service Menu</h2>
             <div className="w-16 h-0.5 bg-gradient-to-r from-amber-600 to-amber-500 mx-auto mb-8" />
-            <h3 className="font-display text-4xl md:text-5xl font-bold italic text-[#2c1810] leading-tight">Tailored Care for Every Space</h3>
+            <h3 className="font-display text-4xl md:text-5xl font-bold italic text-[#2c1810] dark:text-[#faf0e6] leading-tight">Tailored Care for Every Space</h3>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
@@ -402,30 +390,30 @@ const HomePage = () => {
               }))
               : services
             ).map((s, i) => (
-              <Card key={i} className="group border-[#e8e0d5] bg-white rounded-none p-10 transition-all duration-700 hover:-translate-y-2 hover:shadow-2xl hover:shadow-[#2c1810]/5 relative overflow-hidden">
+              <Card key={i} className="group border-[#e8e0d5] dark:border-[#38261d] bg-white dark:bg-[#1c1511] text-[#2c1810] dark:text-[#faf0e6] rounded-none p-10 transition-all duration-700 hover:-translate-y-2 hover:shadow-2xl hover:shadow-black/20 relative overflow-hidden">
                 <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-amber-600 to-amber-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left" />
                 <CardContent className="p-0">
                   <div className="mb-8 transform group-hover:scale-110 transition-transform duration-500">
                     {s.image ? (
-                      <div className="flex flex-1 rounded-2xl overflow-hidden border border-[#e8e0d5] shadow-inner mb-2 bg-[#f0ebe4]">
+                      <div className="flex flex-1 rounded-2xl overflow-hidden border border-[#e8e0d5] dark:border-[#38261d] shadow-inner mb-2 bg-[#f0ebe4] dark:bg-[#251b16]">
                         <img src={s.image} alt="" className="w-full h-full object-cover" />
                       </div>
                     ) : (
-                      <div className="w-16 h-16 flex items-center justify-center bg-[#fef9f1] rounded-2xl border border-amber-100">
-                        {React.cloneElement(s.icon as React.ReactElement<any>, { className: "w-10 h-10 text-amber-600" })}
+                      <div className="w-16 h-16 flex items-center justify-center bg-[#fef9f1] dark:bg-[#251b16] rounded-2xl border border-amber-100 dark:border-amber-900/30">
+                        {React.cloneElement(s.icon as React.ReactElement<any>, { className: "w-10 h-10 text-amber-600 dark:text-amber-400" })}
                       </div>
                     )}
                   </div>
-                  <h4 className="font-display text-xl font-bold mb-4 text-[#2c1810] group-hover:text-amber-700 transition-colors">{s.title}</h4>
-                  <p className="text-sm leading-relaxed text-[#8a7060] mb-8 font-light italic">
+                  <h4 className="font-display text-xl font-bold mb-4 text-[#2c1810] dark:text-[#faf0e6] group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">{s.title}</h4>
+                  <p className="text-sm leading-relaxed text-[#8a7060] dark:text-[#b89e90] mb-8 font-light italic">
                     {s.desc}
                   </p>
-                  <div className="flex justify-between items-center mt-auto pt-4 border-t border-[#f0ebe4]">
-                    <span className="font-bold text-amber-700 text-sm tracking-tight">{s.price}</span>
+                  <div className="flex justify-between items-center mt-auto pt-4 border-t border-[#f0ebe4] dark:border-[#2e1f18]">
+                    <span className="font-bold text-amber-700 dark:text-amber-400 text-sm tracking-tight">{s.price}</span>
                     <button
                       type="button"
                       onClick={handleBookingClick}
-                      className="text-[10px] font-bold tracking-[2px] uppercase text-[#2c1810] cursor-pointer hover:text-amber-600 border-b border-[#2c1810] hover:border-amber-600 pb-0.5 transition-all bg-transparent border-t-0 border-x-0"
+                      className="text-[10px] font-bold tracking-[2px] uppercase text-[#2c1810] dark:text-amber-200 cursor-pointer hover:text-amber-600 dark:hover:text-amber-400 border-b border-[#2c1810] dark:border-amber-400/40 hover:border-amber-600 pb-0.5 transition-all bg-transparent border-t-0 border-x-0"
                     >
                       {user?.role === 'CLIENT' ? 'Book →' : 'Sign Up to Book →'}
                     </button>
@@ -438,25 +426,25 @@ const HomePage = () => {
       </section>
 
       {/* ─── HOW IT WORKS ─── */}
-      <section id="how-it-works" className="py-32 bg-[#f0ebe4]">
+      <section id="how-it-works" className="py-32 bg-[#f0ebe4] dark:bg-[#18120e]">
         <div className="max-w-7xl mx-auto px-6">
           <div className="max-w-2xl mx-auto text-center mb-24">
-            <h2 className="text-[10px] font-bold tracking-[5px] uppercase text-amber-600 mb-4">Simple Flow</h2>
+            <h2 className="text-[10px] font-bold tracking-[5px] uppercase text-amber-600 dark:text-amber-400 mb-4">Simple Flow</h2>
             <div className="w-16 h-0.5 bg-gradient-to-r from-amber-600 to-amber-500 mx-auto mb-8" />
-            <h3 className="font-display text-4xl md:text-5xl font-bold italic text-[#2c1810]">Clean Home in 4 Steps</h3>
+            <h3 className="font-display text-4xl md:text-5xl font-bold italic text-[#2c1810] dark:text-[#faf0e6]">Clean Home in 4 Steps</h3>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 relative">
             {/* Connection Line */}
-            <div className="hidden lg:block absolute top-8 left-0 w-full h-px bg-gradient-to-r from-transparent via-amber-200 to-transparent z-0" />
+            <div className="hidden lg:block absolute top-8 left-0 w-full h-px bg-gradient-to-r from-transparent via-amber-200 dark:via-amber-700/40 to-transparent z-0" />
 
             {steps.map((step, i) => (
               <div key={i} className="relative z-10 text-center px-4 hover:translate-y-[-5px] transition-transform duration-500">
-                <div className="w-16 h-16 rounded-full border-2 border-amber-600 flex items-center justify-center bg-white mx-auto mb-8 shadow-xl shadow-amber-600/5 rotate-3 group-hover:rotate-0 transition-all">
-                  <span className="font-display font-bold text-xl text-amber-600 tracking-tighter">{step.num}</span>
+                <div className="w-16 h-16 rounded-full border-2 border-amber-600 flex items-center justify-center bg-white dark:bg-[#251b16] mx-auto mb-8 shadow-xl shadow-amber-600/5 rotate-3 group-hover:rotate-0 transition-all">
+                  <span className="font-display font-bold text-xl text-amber-600 dark:text-amber-400 tracking-tighter">{step.num}</span>
                 </div>
-                <h4 className="font-display text-xl font-bold mb-4 text-[#2c1810] tracking-tight">{step.title}</h4>
-                <p className="text-sm font-light leading-relaxed text-[#8a7060]">{step.desc}</p>
+                <h4 className="font-display text-xl font-bold mb-4 text-[#2c1810] dark:text-[#faf0e6] tracking-tight">{step.title}</h4>
+                <p className="text-sm font-light leading-relaxed text-[#8a7060] dark:text-[#b89e90]">{step.desc}</p>
               </div>
             ))}
           </div>
@@ -464,7 +452,7 @@ const HomePage = () => {
           <div className="text-center mt-24">
             <Button
               onClick={handleBookingClick}
-              className="bg-gradient-to-r from-[#2c1810] to-[#5a3020] text-white py-8 px-12 rounded-none font-bold tracking-[3px] uppercase text-sm shadow-2xl hover:shadow-amber-900/40 hover:-translate-y-1 transition-all"
+              className="bg-gradient-to-r from-[#2c1810] to-[#5a3020] dark:from-amber-600 dark:to-amber-700 text-white py-8 px-12 rounded-none font-bold tracking-[3px] uppercase text-sm shadow-2xl hover:shadow-amber-900/40 hover:-translate-y-1 transition-all"
             >
               {user?.role === 'CLIENT' ? 'Schedule Your First Clean' : 'Sign Up & Book Your Clean'}
             </Button>
@@ -486,7 +474,7 @@ const HomePage = () => {
               <div key={i} className={`absolute w-full transition-all duration-1000 ease-in-out ${i === activeTestimonial ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-95 pointer-events-none'
                 }`}>
                 <div className="font-display text-7xl text-amber-500 mb-8 select-none">“</div>
-                <blockquote className="font-display text-2xl md:text-3xl italic leading-relaxed mb-12 font-light tracking-wide px-8">
+                <blockquote className="font-display text-2xl md:text-3xl italic leading-relaxed mb-12 font-light tracking-wide px-8 text-[#faf8f5]">
                   {t.text}
                 </blockquote>
                 <div className="flex items-center justify-center gap-4">
@@ -495,7 +483,7 @@ const HomePage = () => {
                   </div>
                   <div className="text-left py-1">
                     <p className="font-bold text-sm tracking-widest text-amber-500">{t.name}</p>
-                    <p className="text-[10px] font-medium tracking-[2px] opacity-40 uppercase">{t.location}</p>
+                    <p className="text-[10px] font-medium tracking-[2px] opacity-60 uppercase text-[#faf8f5]">{t.location}</p>
                   </div>
                 </div>
               </div>
@@ -514,14 +502,14 @@ const HomePage = () => {
       </section>
 
       {/* ─── WHY US ─── */}
-      <section id="about" className="py-32 bg-white">
+      <section id="about" className="py-32 bg-white dark:bg-[#140e0b]">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
             <div className="animate-in fade-in slide-in-from-left-8 duration-1000">
-              <h2 className="text-[10px] font-bold tracking-[5px] uppercase text-amber-600 mb-4">Our Commitment</h2>
+              <h2 className="text-[10px] font-bold tracking-[5px] uppercase text-amber-600 dark:text-amber-400 mb-4">Our Commitment</h2>
               <div className="w-16 h-0.5 bg-gradient-to-r from-amber-600 to-amber-500 mb-10" />
-              <h3 className="font-display text-4xl md:text-5xl font-bold italic text-[#2c1810] mb-8 leading-[1.1]">We Don't Just Clean.<br />We Care.</h3>
-              <p className="text-lg text-[#6a5444] mb-12 font-light leading-relaxed">
+              <h3 className="font-display text-4xl md:text-5xl font-bold italic text-[#2c1810] dark:text-[#faf0e6] mb-8 leading-[1.1]">We Don't Just Clean.<br />We Care.</h3>
+              <p className="text-lg text-[#6a5444] dark:text-[#c4aba0] mb-12 font-light leading-relaxed">
                 Every HCSS cleaner is background-checked, continuously trained, and reviewed by homeowners like you. Our platform guarantees full visibility — from booking to final completion.
               </p>
 
@@ -533,12 +521,12 @@ const HomePage = () => {
                   { icon: <MessageSquare className="w-6 h-6" />, title: "Direct Support", desc: "We're here 24/7 for you." }
                 ].map((item, i) => (
                   <div key={i} className="flex gap-4 group">
-                    <div className="w-12 h-12 bg-[#f0ebe4] flex items-center justify-center text-amber-700 transition-all duration-500 group-hover:bg-amber-600 group-hover:text-white rounded-none shadow-sm">
+                    <div className="w-12 h-12 bg-[#f0ebe4] dark:bg-[#251b16] flex items-center justify-center text-amber-700 dark:text-amber-400 transition-all duration-500 group-hover:bg-amber-600 group-hover:text-white rounded-none shadow-sm">
                       {item.icon}
                     </div>
                     <div>
-                      <h4 className="font-bold text-sm text-[#2c1810] tracking-wide mb-1 group-hover:text-amber-700 transition-colors uppercase">{item.title}</h4>
-                      <p className="text-[11px] font-medium text-[#8a7060]/70 uppercase tracking-widest leading-relaxed">{item.desc}</p>
+                      <h4 className="font-bold text-sm text-[#2c1810] dark:text-[#faf0e6] tracking-wide mb-1 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors uppercase">{item.title}</h4>
+                      <p className="text-[11px] font-medium text-[#8a7060]/70 dark:text-[#b89e90] uppercase tracking-widest leading-relaxed">{item.desc}</p>
                     </div>
                   </div>
                 ))}
@@ -546,25 +534,25 @@ const HomePage = () => {
             </div>
 
             <div className="relative animate-in fade-in slide-in-from-right-8 duration-1000 delay-300">
-              <div className="bg-gradient-to-br from-[#f0ebe4] to-[#e8d5c4] p-16 relative overflow-hidden aspect-square flex items-center justify-center shadow-2xl">
+              <div className="bg-gradient-to-br from-[#f0ebe4] to-[#e8d5c4] dark:from-[#251b16] dark:to-[#1a120e] p-16 relative overflow-hidden aspect-square flex items-center justify-center shadow-2xl">
                 {/* Decorative Elements */}
                 <div className="absolute top-[-5%] right-[-5%] w-64 h-64 border border-amber-600/10 rounded-full" />
                 <div className="absolute bottom-[-10%] left-[-10%] w-48 h-48 border border-amber-600/10 rounded-full" />
 
                 <div className="relative z-10 w-full max-w-sm">
 
-                  <Card className="bg-white rounded-none border-none shadow-2xl p-8 mb-6 -rotate-2 transform hover:rotate-0 transition-transform duration-500">
+                  <Card className="bg-white dark:bg-[#1c1511] text-[#2c1810] dark:text-[#faf0e6] rounded-none border border-transparent dark:border-[#38261d] shadow-2xl p-8 mb-6 -rotate-2 transform hover:rotate-0 transition-transform duration-500">
                     <div className="flex justify-between items-center mb-6">
-                      <span className="text-[9px] font-bold tracking-[2px] text-amber-600 uppercase">Booking Status</span>
-                      <Badge className="bg-green-500/10 text-green-700 border-none rounded-none px-3 font-bold text-[9px] tracking-widest uppercase">Confirmed</Badge>
+                      <span className="text-[9px] font-bold tracking-[2px] text-amber-600 dark:text-amber-400 uppercase">Booking Status</span>
+                      <Badge className="bg-green-500/10 dark:bg-green-500/20 text-green-700 dark:text-green-400 border-none rounded-none px-3 font-bold text-[9px] tracking-widest uppercase">Confirmed</Badge>
                     </div>
                     <div className="flex items-center gap-4 mb-4">
-                      <Check className="w-5 h-5 text-amber-600" />
-                      <h4 className="font-display text-lg font-bold">Deep Home Cleaning</h4>
+                      <Check className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                      <h4 className="font-display text-lg font-bold text-[#2c1810] dark:text-[#faf0e6]">Deep Home Cleaning</h4>
                     </div>
-                    <p className="text-[11px] font-medium text-[#8a7060] uppercase tracking-widest">TODAY · 3:00 PM · 3 BEDROOM</p>
+                    <p className="text-[11px] font-medium text-[#8a7060] dark:text-[#b89e90] uppercase tracking-widest">TODAY · 3:00 PM · 3 BEDROOM</p>
                   </Card>
-                  <Card className="bg-[#2c1810] rounded-none border-none shadow-2xl p-6 rotate-2 transform hover:rotate-0 transition-transform duration-500">
+                  <Card className="bg-[#2c1810] dark:bg-[#140e0b] border border-transparent dark:border-[#38261d] rounded-none shadow-2xl p-6 rotate-2 transform hover:rotate-0 transition-transform duration-500">
                     <div className="flex justify-between items-center text-white">
                       <div>
                         <p className="text-[8px] font-bold tracking-[3px] opacity-40 mb-2 uppercase">Your Assigned Pro</p>

@@ -74,7 +74,7 @@ export function LoginForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader className="text-center flex flex-col items-center">
-          <div className="w-14 h-14 rounded-xl bg-amber-50 border border-amber-200/60 p-2 flex items-center justify-center shadow-sm mb-2">
+          <div className="w-14 h-14 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/40 p-2 flex items-center justify-center shadow-sm mb-2">
             <Image
               src="/logohcss.png"
               alt="HCSS Logo"
@@ -125,7 +125,7 @@ export function LoginForm({
 
                 <FieldDescription className="text-center">
                   Don&apos;t have an account?{" "}
-                  <Link href="/" className="font-semibold text-amber-700 hover:underline">
+                  <Link href="/" className="font-semibold text-amber-700 dark:text-amber-400 hover:underline">
                     Sign Up to Book
                   </Link>
                 </FieldDescription>
