@@ -85,7 +85,7 @@ export async function GET() {
             const ratings = w.reviewsReceived.map((r) => r.rating);
             const avgRating = ratings.length > 0
                 ? Number((ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1))
-                : 5.0;
+                : null;
 
             return {
                 id: w.id,
@@ -139,7 +139,7 @@ export async function GET() {
 
         const overallAvgRating = allReviews.length > 0
             ? (allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length).toFixed(1)
-            : "5.0";
+            : null;
 
         // 5. Payment Methods
         const paymentMethods: Record<string, number> = {};

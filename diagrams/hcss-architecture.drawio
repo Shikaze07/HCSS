@@ -1,0 +1,158 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="hcss-system-arch" name="HCSS System Architecture">
+    <mxGraphModel dx="1600" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1550" pageHeight="1300" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Top Title -->
+        <mxCell id="title" value="SYSTEM ARCHITECTURE" style="text;html=1;align=left;verticalAlign=middle;fontStyle=1;fontSize=20;strokeColor=none;fillColor=none;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="60" y="30" width="400" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- Container Box -->
+        <mxCell id="bg_container" value="" style="rounded=1;arcSize=4;whiteSpace=wrap;html=1;fillColor=#FAFAFA;strokeColor=#D0D0D0;" vertex="1" parent="1">
+          <mxGeometry x="50" y="80" width="1440" height="980" as="geometry"/>
+        </mxCell>
+
+        <!-- Subtitle inside container -->
+        <mxCell id="sub_title" value="SYSTEM ARCHITECTURE" style="text;html=1;align=left;verticalAlign=middle;fontStyle=1;fontSize=15;strokeColor=none;fillColor=none;fontColor=#1E293B;" vertex="1" parent="1">
+          <mxGeometry x="80" y="100" width="300" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- 1. CLIENT / USER (Left Top) -->
+        <mxCell id="user_client" value="&lt;b&gt;CLIENT&lt;/b&gt;&lt;br&gt;(Customer Web App)" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2563EB;strokeWidth=2;fontSize=11;fontColor=#1E293B;align=center;" vertex="1" parent="1">
+          <mxGeometry x="100" y="170" width="160" height="110" as="geometry"/>
+        </mxCell>
+
+        <!-- 2. CLIENT LOCATION PICKER & MAP INTERFACE (Left Mid) -->
+        <mxCell id="comp_map_picker" value="&lt;b&gt;Client Location &amp; Booking UI&lt;/b&gt;&lt;br&gt;• Interactive Leaflet Map&lt;br&gt;• Pin Coordinates (Lat / Lng)&lt;br&gt;• Date &amp; Time Slot Selection&lt;br&gt;• Service Package Picker" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#0284C7;strokeWidth=2;fontSize=10;align=left;spacingLeft=12;fontColor=#0F172A;" vertex="1" parent="1">
+          <mxGeometry x="90" y="440" width="210" height="130" as="geometry"/>
+        </mxCell>
+
+        <!-- 3. WORKER / CLEANER (Left Bottom) -->
+        <mxCell id="user_worker" value="&lt;b&gt;WORKER / CLEANER&lt;/b&gt;&lt;br&gt;(Worker Portal App)&lt;br&gt;• Weekly Schedule&lt;br&gt;• Job Accept / Decline&lt;br&gt;• Live Task Progression" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#059669;strokeWidth=2;fontSize=10;fontColor=#1E293B;align=center;" vertex="1" parent="1">
+          <mxGeometry x="90" y="750" width="210" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- 4. CORE CONTROLLER: Next.js API Gateway / App Router (Center Top) -->
+        <mxCell id="mod_gateway" value="&lt;b&gt;HCSS Core Application &amp; API Router&lt;/b&gt;&lt;br&gt;(Next.js App Router / Edge Handlers)&lt;br&gt;• Auth &amp; Session Guard (lib/auth)&lt;br&gt;• Booking Scheduling &amp; 30-Min Lead Validator&lt;br&gt;• Cleaner Availability &amp; Dispatch Logic" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#ECFDF5;strokeColor=#059669;strokeWidth=2;fontSize=11;fontColor=#064E3B;align=center;" vertex="1" parent="1">
+          <mxGeometry x="450" y="170" width="360" height="110" as="geometry"/>
+        </mxCell>
+
+        <!-- 5. CENTRAL INTELLIGENCE / DISPATCH & TRACKING MODULE (Center Mid) -->
+        <mxCell id="mod_dispatch" value="&lt;b&gt;Dispatch &amp; Service Tracking Module&lt;/b&gt;&lt;br&gt;• Automated Cleaner Matching&lt;br&gt;• Real-time Booking Status Progression&lt;br&gt;(PENDING → CONFIRMED → ASSIGNED → ON_THE_WAY → ARRIVED → IN_PROGRESS → COMPLETED)&lt;br&gt;• Conflict Detection &amp; Reschedule Engine" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#EFF6FF;strokeColor=#2563EB;strokeWidth=2;fontSize=10;fontColor=#1E3A8A;align=center;" vertex="1" parent="1">
+          <mxGeometry x="440" y="430" width="380" height="130" as="geometry"/>
+        </mxCell>
+
+        <!-- 6. EXTERNAL GEOCODING & MAP SERVICES (Right Top) -->
+        <mxCell id="ext_map" value="&lt;b&gt;EXTERNAL MAP &amp; GEO PROVIDER&lt;/b&gt;&lt;br&gt;• OpenStreetMap Tiles&lt;br&gt;• Nominatim Reverse Geocoding API&lt;br&gt;• Cloudinary (Service Image Uploads)" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#64748B;strokeWidth=2;fontSize=10;fontColor=#0F172A;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1150" y="165" width="280" height="110" as="geometry"/>
+        </mxCell>
+
+        <!-- 7. SERVER / REPORTING & ANALYTICS ENGINE (Right Mid) -->
+        <mxCell id="srv_analytics" value="&lt;b&gt;REPORTS &amp; PDF EXPORT ENGINE&lt;/b&gt;&lt;br&gt;• jsPDF &amp; AutoTable Generator&lt;br&gt;• Demand &amp; Revenue Aggregator&lt;br&gt;• Worker Performance &amp; Ratings" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#FEF2F2;strokeColor=#DC2626;strokeWidth=2;fontSize=10;fontColor=#7F1D1D;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1165" y="440" width="250" height="110" as="geometry"/>
+        </mxCell>
+
+        <!-- 8. DATABASE / PERSISTENCE LAYER (Right Bottom) -->
+        <mxCell id="db_main" value="&lt;b&gt;POSTGRESQL DATABASE&lt;/b&gt;&lt;br&gt;(via Prisma ORM)&lt;br&gt;User • Service • Booking • WorkerAssignment&lt;br&gt;WorkerAvailability • Payment • Review" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#FEF9C3;strokeColor=#CA8A04;strokeWidth=2;fontSize=10;fontColor=#713F12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1160" y="730" width="260" height="130" as="geometry"/>
+        </mxCell>
+
+        <!-- 9. ADMINISTRATOR (Center Bottom) -->
+        <mxCell id="user_admin" value="&lt;b&gt;ADMINISTRATOR&lt;/b&gt;&lt;br&gt;(Web Admin Portal)&lt;br&gt;• Approve / Cancel Bookings&lt;br&gt;• Dispatch Workers &amp; Manage Services&lt;br&gt;• Monitor System Audits &amp; Export PDF Reports" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#7C3AED;strokeWidth=2;fontSize=10;fontColor=#1E293B;align=center;" vertex="1" parent="1">
+          <mxGeometry x="500" y="745" width="270" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- Subtitle: Home Cleaning Service System -->
+        <mxCell id="lbl_hcss" value="Home Cleaning Service System (HCSS)" style="text;html=1;align=center;verticalAlign=middle;fontStyle=1;fontSize=14;strokeColor=none;fillColor=none;fontColor=#0F172A;" vertex="1" parent="1">
+          <mxGeometry x="520" y="930" width="380" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- Figure Title -->
+        <mxCell id="fig_title" value="Figure: System Architecture Diagram" style="text;html=1;align=center;verticalAlign=middle;fontStyle=2;fontSize=12;strokeColor=none;fillColor=none;fontColor=#334155;" vertex="1" parent="1">
+          <mxGeometry x="560" y="960" width="300" height="25" as="geometry"/>
+        </mxCell>
+
+        <!-- Legend Container at Bottom -->
+        <mxCell id="legend_box" value="" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="70" y="1090" width="1400" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- Legend Col 1 -->
+        <mxCell id="leg_col1" value="&lt;b&gt;Client:&lt;/b&gt; Selects cleaning services, picks location on interactive map, books appointments, tracks live status, pays, and leaves reviews.&lt;br&gt;&lt;b&gt;Location &amp; Booking UI:&lt;/b&gt; Handles Leaflet GPS coordinates, address geocoding, and ensures 30-min booking advance lead time.&lt;br&gt;&lt;b&gt;Worker / Cleaner:&lt;/b&gt; Sets weekly working availability slots, accepts or declines assigned cleaning jobs, and updates on-site statuses." style="text;html=1;align=left;verticalAlign=top;fontSize=9;fontColor=#334155;strokeColor=none;fillColor=none;spacingLeft=5;" vertex="1" parent="1">
+          <mxGeometry x="85" y="1100" width="670" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- Legend Col 2 -->
+        <mxCell id="leg_col2" value="&lt;b&gt;Dispatch &amp; Service Tracking Module:&lt;/b&gt; Matches verified cleaners to confirmed bookings, enforces schedule rules, and coordinates job lifecycle.&lt;br&gt;&lt;b&gt;External Map &amp; Geo Provider:&lt;/b&gt; Delivers map tiles (OSM), reverse geocoding (Nominatim), and secure cloud assets.&lt;br&gt;&lt;b&gt;PostgreSQL Database:&lt;/b&gt; Structured relational persistence for all system users, services, bookings, dispatches, payments, and ratings.&lt;br&gt;&lt;b&gt;Admin:&lt;/b&gt; Oversees system operation, reviews booking requests, assigns cleaners, audits payments, and exports analytical reports." style="text;html=1;align=left;verticalAlign=top;fontSize=9;fontColor=#334155;strokeColor=none;fillColor=none;spacingLeft=5;" vertex="1" parent="1">
+          <mxGeometry x="770" y="1100" width="680" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- ================= CONNECTING EDGES (ORTHOGONAL / NO OVERLAPS) ================= -->
+
+        <!-- 1. Client -> Core App Gateway -->
+        <mxCell id="e_c_core" value="Service Booking &amp; Preferences" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#2563EB;fontSize=9;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.35;entryX=0;entryY=0.35;" edge="1" parent="1" source="user_client" target="mod_gateway">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- 2. Client -> Map Picker -->
+        <mxCell id="e_c_map" value="Map Interaction" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#2563EB;fontSize=9;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="user_client" target="comp_map_picker">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- 3. Map Picker -> Core App Gateway -->
+        <mxCell id="e_picker_core" value="Pinned Lat/Lng &amp; Geocoded Address" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#0284C7;fontSize=9;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.25;entryX=0;entryY=0.75;" edge="1" parent="1" source="comp_map_picker" target="mod_gateway">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- 4. Map Picker -> Dispatch Module -->
+        <mxCell id="e_picker_disp" value="Service Location Pin" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#0284C7;fontSize=9;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.7;entryX=0;entryY=0.6;" edge="1" parent="1" source="comp_map_picker" target="mod_dispatch">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- 5. Core Gateway -> External Map Provider -->
+        <mxCell id="e_core_ext" value="Reverse Geocode Queries &amp; Tiles" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=classic;endArrow=classic;strokeColor=#64748B;fontSize=9;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="mod_gateway" target="ext_map">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- 6. Core Gateway <-> Dispatch Module -->
+        <mxCell id="e_core_disp" value="Validated Bookings &amp; Schedules" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=classic;endArrow=classic;strokeColor=#059669;fontSize=9;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="mod_gateway" target="mod_dispatch">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- 7. Dispatch Module -> Reports Engine -->
+        <mxCell id="e_disp_srv" value="Completed Tasks &amp; Metrics" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#DC2626;fontSize=9;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.45;entryX=0;entryY=0.45;" edge="1" parent="1" source="mod_dispatch" target="srv_analytics">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- 8. External Geo -> Reports / Server -->
+        <mxCell id="e_ext_srv" value="Service Area Data" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#64748B;fontSize=9;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="ext_map" target="srv_analytics">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- 9. Reports Engine <-> Database -->
+        <mxCell id="e_srv_db" value="Aggregated Queries" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=classic;endArrow=classic;strokeColor=#CA8A04;fontSize=9;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="srv_analytics" target="db_main">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- 10. Worker -> Dispatch Module -->
+        <mxCell id="e_w_disp" value="Availability Slots &amp; Status Updates" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=classic;endArrow=classic;strokeColor=#059669;fontSize=9;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.3;entryX=0.1;entryY=1;" edge="1" parent="1" source="user_worker" target="mod_dispatch">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- 11. Admin <-> Dispatch Module -->
+        <mxCell id="e_a_disp" value="Worker Assignments &amp; Rescheduling" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=classic;endArrow=classic;strokeColor=#7C3AED;fontSize=9;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=0;entryX=0.6;entryY=1;" edge="1" parent="1" source="user_admin" target="mod_dispatch">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- 12. Admin -> Database -->
+        <mxCell id="e_a_db" value="Stores Approved Records &amp; Audits" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#7C3AED;fontSize=9;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="user_admin" target="db_main">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

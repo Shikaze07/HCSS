@@ -31,6 +31,13 @@ import {
     DialogFooter
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 
 export default function AdminBookingManagementPage() {
     const [bookings, setBookings] = useState<any[]>([]);
@@ -42,9 +49,12 @@ export default function AdminBookingManagementPage() {
     const [newStartTime, setNewStartTime] = useState("");
     const [processingId, setProcessingId] = useState<string | null>(null);
 
-    const fetchBookings = async () => {
+    const [page, setPage] = useState(1);
+    const PAGE_SIZE = 10;
+
+    const fetchBookings = async (silent = false) => {
         try {
-            setLoading(true);
+            if (!silent) setLoading(true);
             const res = await fetch("/api/admin/bookings?all=true");
             if (res.ok) {
                 const data = await res.json();
@@ -62,7 +72,19 @@ export default function AdminBookingManagementPage() {
 
     useEffect(() => {
         fetchBookings();
+        // Auto-refresh so new client bookings appear without a manual reload
+        const interval = setInterval(() => fetchBookings(true), 15000);
+        const onFocus = () => fetchBookings(true);
+        window.addEventListener("focus", onFocus);
+        return () => {
+            clearInterval(interval);
+            window.removeEventListener("focus", onFocus);
+        };
     }, []);
+
+    useEffect(() => {
+        setPage(1);
+    }, [searchQuery, statusFilter]);
 
     const handleUpdateStatus = async (id: string, status: string) => {
         try {
@@ -139,6 +161,10 @@ export default function AdminBookingManagementPage() {
         return matchesStatus && matchesSearch;
     });
 
+    const totalPages = Math.max(1, Math.ceil(filteredBookings.length / PAGE_SIZE));
+    const currentPage = Math.min(page, totalPages);
+    const pagedBookings = filteredBookings.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
     const getStatusBadge = (status: string) => {
         switch (status) {
             case "COMPLETED":
@@ -193,19 +219,19 @@ export default function AdminBookingManagementPage() {
                     />
                 </div>
 
-                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-                    {["ALL", "PENDING", "CONFIRMED", "IN_PROGRESS", "COMPLETED", "CANCELLED"].map((status) => (
-                        <Button
-                            key={status}
-                            variant={statusFilter === status ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => setStatusFilter(status)}
-                            className="text-xs capitalize font-medium rounded-lg whitespace-nowrap"
-                        >
-                            {status === "ALL" ? "All Bookings" : status.replace("_", " ").toLowerCase()}
-                        </Button>
-                    ))}
-                </div>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Filter by status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="ALL">All Status</SelectItem>
+                        <SelectItem value="PENDING">Pending</SelectItem>
+                        <SelectItem value="CONFIRMED">Confirmed</SelectItem>
+                        <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+                        <SelectItem value="COMPLETED">Completed</SelectItem>
+                        <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                    </SelectContent>
+                </Select>
             </div>
 
             {/* Bookings Table / List */}
@@ -231,7 +257,7 @@ export default function AdminBookingManagementPage() {
                                     </td>
                                 </tr>
                             ) : (
-                                filteredBookings.map((b) => {
+                                pagedBookings.map((b) => {
                                     const dateFormatted = new Date(b.bookingDate).toLocaleDateString("en-US", {
                                         month: "short",
                                         day: "numeric",
@@ -329,6 +355,22 @@ export default function AdminBookingManagementPage() {
                         </tbody>
                     </table>
                 </div>
+                {filteredBookings.length > 0 && (
+                    <div className="flex items-center justify-between border-t px-4 py-3 text-xs text-muted-foreground">
+                        <span>
+                            Showing {(currentPage - 1) * PAGE_SIZE + 1}-{Math.min(currentPage * PAGE_SIZE, filteredBookings.length)} of {filteredBookings.length}
+                        </span>
+                        <div className="flex items-center gap-2">
+                            <Button size="sm" variant="outline" disabled={currentPage === 1} onClick={() => setPage(currentPage - 1)}>
+                                Previous
+                            </Button>
+                            <span>Page {currentPage} of {totalPages}</span>
+                            <Button size="sm" variant="outline" disabled={currentPage === totalPages} onClick={() => setPage(currentPage + 1)}>
+                                Next
+                            </Button>
+                        </div>
+                    </div>
+                )}
             </Card>
 
             {/* Reschedule Modal */}

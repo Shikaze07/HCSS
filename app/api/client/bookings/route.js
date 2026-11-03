@@ -13,6 +13,13 @@ export async function POST(req) {
             )
         }
 
+        if (new Date(startTime).getTime() < Date.now() + 30 * 60000 - 60000) {
+            return NextResponse.json(
+                { error: "Bookings must be at least 30 minutes from now" },
+                { status: 400 }
+            )
+        }
+
         // Fetch service to get price
         const service = await prisma.service.findUnique({
             where: { id: serviceId }

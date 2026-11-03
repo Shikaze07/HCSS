@@ -23,11 +23,18 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
+
+const PAGE_SIZE = 5;
 
 export default function AdminReportsPage() {
     const [data, setData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [timeframe, setTimeframe] = useState("all");
+    const [activeTab, setActiveTab] = useState("demand");
+    const [search, setSearch] = useState("");
+    const [page, setPage] = useState(1);
 
     const fetchReports = async () => {
         try {
@@ -51,6 +58,10 @@ export default function AdminReportsPage() {
         fetchReports();
     }, []);
 
+    useEffect(() => {
+        setPage(1);
+    }, [search, activeTab]);
+
     if (loading) {
         return (
             <div className="flex h-[500px] w-full items-center justify-center">
@@ -68,6 +79,98 @@ export default function AdminReportsPage() {
     const completionRate = kpi.totalBookings > 0
         ? Math.round((kpi.completedBookings / kpi.totalBookings) * 100)
         : 100;
+
+    const q = search.toLowerCase().trim();
+    const filteredDemand = serviceDemand.filter((s: any) => !q || s.name?.toLowerCase().includes(q));
+    const filteredWorkers = workerPerformance.filter((w: any) =>
+        !q || w.name?.toLowerCase().includes(q) || w.email?.toLowerCase().includes(q));
+    const filteredReviews = recentReviews.filter((r: any) =>
+        !q ||
+        `${r.client?.firstName} ${r.client?.lastName}`.toLowerCase().includes(q) ||
+        `${r.worker?.firstName} ${r.worker?.lastName}`.toLowerCase().includes(q) ||
+        r.booking?.service?.name?.toLowerCase().includes(q) ||
+        r.comment?.toLowerCase().includes(q));
+    const filteredPayments = Object.entries(paymentMethods).filter(([m]) => !q || m.toLowerCase().includes(q));
+
+    const activeCount =
+        activeTab === "demand" ? filteredDemand.length :
+        activeTab === "performance" ? filteredWorkers.length :
+        activeTab === "satisfaction" ? filteredReviews.length : 0;
+    const totalPages = Math.max(1, Math.ceil(activeCount / PAGE_SIZE));
+    const currentPage = Math.min(page, totalPages);
+    const paginate = (arr: any[]) => arr.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+    const pager = activeCount > 0 && activeTab !== "payments" && (
+        <div className="flex items-center justify-between text-xs text-muted-foreground print:hidden">
+            <span>
+                Showing {(currentPage - 1) * PAGE_SIZE + 1}-{Math.min(currentPage * PAGE_SIZE, activeCount)} of {activeCount}
+            </span>
+            <div className="flex items-center gap-2">
+                <Button size="sm" variant="outline" disabled={currentPage === 1} onClick={() => setPage(currentPage - 1)}>
+                    Previous
+                </Button>
+                <span>Page {currentPage} of {totalPages}</span>
+                <Button size="sm" variant="outline" disabled={currentPage === totalPages} onClick={() => setPage(currentPage + 1)}>
+                    Next
+                </Button>
+            </div>
+        </div>
+    );
+
+    const exportPdf = async () => {
+        try {
+            const { jsPDF } = await import("jspdf");
+            const autoTable = (await import("jspdf-autotable")).default;
+            const doc = new jsPDF();
+            const peso = (n: number) => `PHP ${Number(n || 0).toLocaleString()}`;
+            const titles: Record<string, string> = {
+                demand: "Service Demand & Revenue Breakdown",
+                performance: "Worker Performance Leaderboard",
+                satisfaction: "Customer Ratings & Reviews",
+                payments: "Payment Methods",
+            };
+
+            doc.setFontSize(16);
+            doc.text("HCSS Report", 14, 16);
+            doc.setFontSize(11);
+            doc.text(titles[activeTab], 14, 24);
+            doc.setFontSize(9);
+            doc.text(`Generated: ${new Date().toLocaleString()}${q ? `  |  Filter: "${search}"` : ""}`, 14, 30);
+            doc.text(
+                `Revenue: ${peso(kpi.totalRevenue)}  |  Bookings: ${kpi.completedBookings}/${kpi.totalBookings}  |  Avg rating: ${kpi.overallAvgRating ?? "No ratings yet"}`,
+                14, 35
+            );
+
+            let head: string[][] = [];
+            let body: any[][] = [];
+            if (activeTab === "demand") {
+                head = [["Service", "Rate", "Bookings", "Completed", "Revenue"]];
+                body = filteredDemand.map((s: any) => [s.name, peso(s.price), s.totalBookings, s.completedBookings, peso(s.revenue)]);
+            } else if (activeTab === "performance") {
+                head = [["Cleaner", "Email", "Assigned", "Completed", "Revenue", "Rating"]];
+                body = filteredWorkers.map((w: any) => [w.name, w.email, w.totalAssigned, w.completedJobs, peso(w.revenueGenerated), w.avgRating != null ? `${w.avgRating} (${w.reviewCount})` : "No ratings yet"]);
+            } else if (activeTab === "satisfaction") {
+                head = [["Client", "Service", "Cleaner", "Rating", "Comment", "Date"]];
+                body = filteredReviews.map((r: any) => [
+                    `${r.client?.firstName} ${r.client?.lastName}`,
+                    r.booking?.service?.name || "",
+                    `${r.worker?.firstName} ${r.worker?.lastName}`,
+                    `${r.rating}/5`,
+                    r.comment || "",
+                    new Date(r.createdAt).toLocaleDateString(),
+                ]);
+            } else {
+                head = [["Method", "Amount"]];
+                body = filteredPayments.map(([m, a]: [string, any]) => [m, peso(a)]);
+            }
+
+            autoTable(doc, { startY: 40, head, body, styles: { fontSize: 8 } });
+            doc.save(`hcss-report-${activeTab}-${new Date().toISOString().slice(0, 10)}.pdf`);
+        } catch (error) {
+            console.error("PDF export error:", error);
+            toast.error("Failed to export PDF");
+        }
+    };
 
     return (
         <div className="flex flex-1 flex-col p-4 md:p-8 space-y-8 max-w-7xl mx-auto w-full print:p-0">
@@ -91,6 +194,10 @@ export default function AdminReportsPage() {
                     >
                         <RefreshCw className="w-4 h-4" />
                         Refresh Data
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={exportPdf} className="gap-1.5">
+                        <Download className="w-4 h-4" />
+                        Export PDF
                     </Button>
                 </div>
             </div>
@@ -148,8 +255,10 @@ export default function AdminReportsPage() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-3xl font-black text-foreground flex items-center gap-1.5">
-                            {kpi.overallAvgRating}
-                            <span className="text-sm text-muted-foreground font-normal">/ 5.0</span>
+                            {kpi.overallAvgRating ?? "No ratings yet"}
+                            {kpi.overallAvgRating != null && (
+                                <span className="text-sm text-muted-foreground font-normal">/ 5.0</span>
+                            )}
                         </div>
                         <p className="text-xs text-muted-foreground mt-1">
                             Based on {kpi.totalReviews} verified client reviews
@@ -178,7 +287,17 @@ export default function AdminReportsPage() {
             </div>
 
             {/* Reports Tabs */}
-            <Tabs defaultValue="demand" className="w-full space-y-6">
+            <div className="relative max-w-md print:hidden">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                    placeholder="Search current report..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="pl-9 bg-card"
+                />
+            </div>
+
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full space-y-6">
                 <TabsList className="bg-muted p-1 print:hidden">
                     <TabsTrigger value="demand" className="gap-2">
                         <Briefcase className="w-4 h-4" />
@@ -221,7 +340,7 @@ export default function AdminReportsPage() {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-border">
-                                        {serviceDemand.map((s: any) => {
+                                        {paginate(filteredDemand).map((s: any) => {
                                             const share = kpi.totalBookings > 0
                                                 ? Math.round((s.totalBookings / kpi.totalBookings) * 100)
                                                 : 0;
@@ -259,6 +378,7 @@ export default function AdminReportsPage() {
                             </div>
                         </CardContent>
                     </Card>
+                    {pager}
                 </TabsContent>
 
                 {/* 2. Worker Performance */}
@@ -284,7 +404,7 @@ export default function AdminReportsPage() {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-border">
-                                        {workerPerformance.map((w: any) => (
+                                        {paginate(filteredWorkers).map((w: any) => (
                                             <tr key={w.id} className="hover:bg-muted/30 transition-colors">
                                                 <td className="py-3.5 px-4 font-bold text-foreground">
                                                     {w.name}
@@ -304,13 +424,17 @@ export default function AdminReportsPage() {
                                                     ₱{w.revenueGenerated.toLocaleString()}
                                                 </td>
                                                 <td className="py-3.5 px-4 text-center">
-                                                    <span className="inline-flex items-center gap-1 font-bold text-amber-500">
-                                                        <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-                                                        {w.avgRating}
-                                                        <span className="text-xs text-muted-foreground font-normal">
-                                                            ({w.reviewCount})
+                                                    {w.avgRating != null ? (
+                                                        <span className="inline-flex items-center gap-1 font-bold text-amber-500">
+                                                            <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                                                            {w.avgRating}
+                                                            <span className="text-xs text-muted-foreground font-normal">
+                                                                ({w.reviewCount})
+                                                            </span>
                                                         </span>
-                                                    </span>
+                                                    ) : (
+                                                        <span className="text-xs text-muted-foreground">No ratings yet</span>
+                                                    )}
                                                 </td>
                                             </tr>
                                         ))}
@@ -319,6 +443,7 @@ export default function AdminReportsPage() {
                             </div>
                         </CardContent>
                     </Card>
+                    {pager}
                 </TabsContent>
 
                 {/* 3. Customer Ratings & Reviews */}
@@ -331,13 +456,13 @@ export default function AdminReportsPage() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            {recentReviews.length === 0 ? (
+                            {filteredReviews.length === 0 ? (
                                 <div className="text-center py-8 text-muted-foreground">
-                                    No customer reviews recorded yet.
+                                    No customer reviews found.
                                 </div>
                             ) : (
                                 <div className="space-y-3">
-                                    {recentReviews.map((rev: any) => (
+                                    {paginate(filteredReviews).map((rev: any) => (
                                         <div
                                             key={rev.id}
                                             className="p-4 rounded-xl border bg-card/60 space-y-2 text-sm"
@@ -372,12 +497,13 @@ export default function AdminReportsPage() {
                             )}
                         </CardContent>
                     </Card>
+                    {pager}
                 </TabsContent>
 
                 {/* 4. Payment Methods */}
                 <TabsContent value="payments" className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                        {Object.entries(paymentMethods).map(([method, amount]: [string, any]) => (
+                        {filteredPayments.map(([method, amount]: [string, any]) => (
                             <Card key={method} className="border">
                                 <CardHeader className="pb-2">
                                     <CardTitle className="text-sm font-medium text-muted-foreground uppercase">

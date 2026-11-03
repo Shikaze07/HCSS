@@ -1,0 +1,203 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="hcss-existing-flow" name="HCSS Existing Manual Flowchart">
+    <mxGraphModel dx="1400" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1300" pageHeight="1450" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title" value="EXISTING MANUAL CLEANING SERVICE FLOWCHART (TRADITIONAL PROCESS)" style="text;html=1;align=center;verticalAlign=middle;fontStyle=1;fontSize=16;strokeColor=none;fillColor=none;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="250" y="20" width="750" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- Swimlane Headers / Labels -->
+        <mxCell id="hdr_client" value="CLIENT" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;fillColor=#FFFFFF;strokeColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="80" y="80" width="260" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="hdr_admin" value="ADMIN / DISPATCHER (MANUAL)" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;fillColor=#FFFFFF;strokeColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="480" y="80" width="280" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="hdr_worker" value="CLEANER / WORKER" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;fillColor=#FFFFFF;strokeColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="880" y="80" width="260" height="35" as="geometry"/>
+        </mxCell>
+
+        <!-- Start Node -->
+        <mxCell id="m_start" value="Start" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="160" y="140" width="100" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- Step 1: Client inquires manually -->
+        <mxCell id="m_c1" value="Inquire via phone call, SMS, or social media messaging for cleaning service &amp; pricing" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="100" y="210" width="220" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Step 2: Admin checks paper log / notebook -->
+        <mxCell id="m_a1" value="Receive inquiry and manually check paper appointment log / white board" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="510" y="210" width="220" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Decision 1: Slot & cleaner available? -->
+        <mxCell id="m_d1" value="Requested schedule &amp; cleaner available?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="525" y="300" width="190" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Slot Unavailable: Propose new time -->
+        <mxCell id="m_a1n" value="Notify client slot is unavailable; manually negotiate alternative time" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="290" y="310" width="180" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Step 3: Admin manually calls/texts cleaners to find someone available -->
+        <mxCell id="m_a2" value="Contact individual cleaners via phone calls or SMS to confirm who is willing to take the job" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="510" y="420" width="220" height="65" as="geometry"/>
+        </mxCell>
+
+        <!-- Step 4: Worker responds via call/SMS -->
+        <mxCell id="m_w1" value="Receive call/SMS and reply with acceptance or decline" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="910" y="420" width="200" height="65" as="geometry"/>
+        </mxCell>
+
+        <!-- Decision 2: Cleaner accepts? -->
+        <mxCell id="m_d2" value="Cleaner accepts?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="545" y="520" width="150" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Cleaner declined: Contact next -->
+        <mxCell id="m_a2n" value="Contact next cleaner on list (delays scheduling)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="740" y="525" width="150" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Step 5: Admin confirms with Client & notes in logbook -->
+        <mxCell id="m_a3" value="Write booking in paper notebook / spreadsheet &amp; send confirmation SMS to client" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="510" y="630" width="220" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Step 6: Client receives SMS and waits without live status -->
+        <mxCell id="m_c2" value="Receive confirmation SMS; wait with no real-time tracking or ETA updates" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="100" y="630" width="220" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Step 7: Cleaner travels using verbal landmarks / text address -->
+        <mxCell id="m_w2" value="Travel to customer home using verbal landmark directions (risk of getting lost)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="910" y="730" width="200" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Step 8: Perform service -->
+        <mxCell id="m_w3" value="Perform cleaning service on-site" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="910" y="820" width="200" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Step 9: Manual cash payment & paper receipt -->
+        <mxCell id="m_c3" value="Hand over manual cash payment &amp; receive paper receipt / acknowledgment" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="100" y="900" width="220" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Step 10: Worker remits cash & verbally reports completion -->
+        <mxCell id="m_w4" value="Remit collected payment to office &amp; verbally report service completion" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="910" y="900" width="200" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Step 11: Admin manually updates physical records -->
+        <mxCell id="m_a4" value="Manually cross out entry in logbook, tally cash collections &amp; file paper receipt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="510" y="990" width="220" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Manual Problem Callout Note -->
+        <mxCell id="m_note" value="&lt;b&gt;Identified Pain Points of the Existing System:&lt;/b&gt;&lt;br&gt;• No central database or online booking; high risk of double-booking.&lt;br&gt;• Manual phone calls/SMS create severe dispatcher bottlenecks.&lt;br&gt;• Verbal landmark directions cause cleaner delays (no GPS map pins).&lt;br&gt;• No digital service tracking, customer ratings, or automated revenue reporting.&lt;br&gt;&lt;i&gt;*Solved by HCSS automated platform.&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontSize=10;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="100" y="1090" width="630" height="85" as="geometry"/>
+        </mxCell>
+
+        <!-- End Node -->
+        <mxCell id="m_end" value="End" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="570" y="1220" width="100" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- Connectors -->
+        <mxCell id="me1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#000000;" edge="1" parent="1" source="m_start" target="m_c1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="me2" value="Call / SMS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#000000;fontSize=9;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="m_c1" target="m_a1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="me3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#000000;" edge="1" parent="1" source="m_a1" target="m_d1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="me4" value="No" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#000000;fontSize=9;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="m_d1" target="m_a1n">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="me4_ret" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#000000;" edge="1" parent="1" source="m_a1n" target="m_c1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="me5" value="Yes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#000000;fontSize=9;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="m_d1" target="m_a2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="me6" value="Call / SMS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#000000;fontSize=9;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="m_a2" target="m_w1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="me7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#000000;" edge="1" parent="1" source="m_w1" target="m_d2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="me8" value="No" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#000000;fontSize=9;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="m_d2" target="m_a2n">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="me8_ret" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#000000;" edge="1" parent="1" source="m_a2n" target="m_a2">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="815" y="450"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="me9" value="Yes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#000000;fontSize=9;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="m_d2" target="m_a3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="me10" value="SMS Notice" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#000000;fontSize=9;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="m_a3" target="m_c2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="me11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#000000;" edge="1" parent="1" source="m_a3" target="m_w2">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="620" y="760"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="me12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#000000;" edge="1" parent="1" source="m_w2" target="m_w3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="me13" value="Collect Cash" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#000000;fontSize=9;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="m_w3" target="m_c3">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1010" y="880"/>
+              <mxPoint x="210" y="880"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="me14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#000000;" edge="1" parent="1" source="m_c3" target="m_w4">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="me15" value="Remit Cash" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#000000;fontSize=9;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="m_w4" target="m_a4">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="me16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#000000;" edge="1" parent="1" source="m_a4" target="m_end">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -5,8 +5,16 @@ import { Badge } from "@/components/ui/badge"
 import { MapPin, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+
+const PAGE_SIZE = 5
 
 export function BookingList({ bookings, selectedBooking }) {
+    const [page, setPage] = useState(1)
+    const totalPages = Math.max(1, Math.ceil(bookings.length / PAGE_SIZE))
+    const currentPage = Math.min(page, totalPages)
+    const pagedBookings = bookings.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
     const getStatusLabel = (status) => {
         switch (status) {
             case "PENDING": return "Pending"
@@ -19,8 +27,9 @@ export function BookingList({ bookings, selectedBooking }) {
     }
 
     return (
-        <div className="space-y-5 overflow-y-auto max-h-[700px] pr-2 scrollbar-thin scrollbar-thumb-primary/10">
-            {bookings.map((booking) => (
+        <div className="space-y-5">
+        <div className="space-y-5 pr-2">
+            {pagedBookings.map((booking) => (
                 <Link key={booking.id} href={`/client/service-tracking/${booking.id}`}>
                     <Card
                         className={cn(
@@ -55,6 +64,18 @@ export function BookingList({ bookings, selectedBooking }) {
                     </Card>
                 </Link>
             ))}
+        </div>
+        {bookings.length > PAGE_SIZE && (
+            <div className="flex items-center justify-between text-sm text-muted-foreground">
+                <Button size="sm" variant="outline" disabled={currentPage === 1} onClick={() => setPage(currentPage - 1)}>
+                    Previous
+                </Button>
+                <span>Page {currentPage} of {totalPages}</span>
+                <Button size="sm" variant="outline" disabled={currentPage === totalPages} onClick={() => setPage(currentPage + 1)}>
+                    Next
+                </Button>
+            </div>
+        )}
         </div>
     )
 }

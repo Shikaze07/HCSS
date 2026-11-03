@@ -22,6 +22,8 @@ const LocationPicker = dynamic(
     { ssr: false, loading: () => <div className="h-64 w-full rounded-md border bg-muted/40 animate-pulse" /> }
 )
 
+const MIN_LEAD_MINUTES = 30
+
 export function BookingModal({ service, open, setOpen, onBookingSuccess }) {
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [isLocating, setIsLocating] = useState(false)
@@ -115,6 +117,11 @@ export function BookingModal({ service, open, setOpen, onBookingSuccess }) {
             return
         }
 
+        if (new Date(`${formData.bookingDate}T${formData.startTime}`).getTime() < Date.now() + MIN_LEAD_MINUTES * 60000) {
+            toast.error(`Bookings must be at least ${MIN_LEAD_MINUTES} minutes from now`)
+            return
+        }
+
         if (!formData.clientId) {
             toast.error("Session error. Please try logging in again.")
             return
@@ -167,6 +174,11 @@ export function BookingModal({ service, open, setOpen, onBookingSuccess }) {
         }
     }
 
+    const now = new Date(Date.now() + MIN_LEAD_MINUTES * 60000)
+    const pad = (n) => String(n).padStart(2, "0")
+    const todayStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
+    const nowTimeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}`
+
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogContent className="sm:max-w-[560px] max-h-[90vh] overflow-y-auto">
@@ -184,6 +196,7 @@ export function BookingModal({ service, open, setOpen, onBookingSuccess }) {
                                 id="bookingDate"
                                 name="bookingDate"
                                 type="date"
+                                min={todayStr}
                                 value={formData.bookingDate}
                                 onChange={handleInputChange}
                                 required
@@ -204,6 +217,7 @@ export function BookingModal({ service, open, setOpen, onBookingSuccess }) {
                                 id="startTime"
                                 name="startTime"
                                 type="time"
+                                min={formData.bookingDate === todayStr ? nowTimeStr : undefined}
                                 value={formData.startTime}
                                 onChange={handleInputChange}
                                 required
