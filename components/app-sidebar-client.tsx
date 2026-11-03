@@ -152,6 +152,26 @@ const data = {
 }
 
 export function AppSidebarClient({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const [user, setUser] = React.useState(data.user)
+
+  React.useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch("/api/auth/me")
+        const json = await res.json()
+        if (res.ok && json.user) {
+          setUser({
+            name: `${json.user.firstName} ${json.user.lastName}`,
+            email: json.user.email,
+            avatar: "/avatars/shadcn.jpg",
+          })
+        }
+      } catch (error) {
+        console.error("Failed to fetch user for sidebar:", error)
+      }
+    }
+    fetchUser()
+  }, [])
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -176,7 +196,7 @@ export function AppSidebarClient({ ...props }: React.ComponentProps<typeof Sideb
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={user} />
       </SidebarFooter>
     </Sidebar>
   )
