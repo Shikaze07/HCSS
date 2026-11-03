@@ -14,6 +14,20 @@ import {
 
 export function ModeToggle() {
     const { setTheme } = useTheme()
+    const [mounted, setMounted] = React.useState(false)
+
+    React.useEffect(() => setMounted(true), [])
+
+    // Radix generates different ids on server vs client; render a static
+    // placeholder until mounted to avoid a hydration mismatch.
+    if (!mounted) {
+        return (
+            <Button variant="ghost" size="icon" className="h-8 w-8" disabled>
+                <Sun className="h-[1.2rem] w-[1.2rem]" />
+                <span className="sr-only">Toggle theme</span>
+            </Button>
+        )
+    }
 
     return (
         <DropdownMenu>
