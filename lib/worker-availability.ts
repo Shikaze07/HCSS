@@ -71,23 +71,36 @@ function getConflict(booking: BookingSlot, availability: AvailabilityRow[], assi
     const s = localParts(start);
     const e = localParts(end);
 
-    let hours: { start: number; end: number } | null;
-    if (availability.length === 0) {
-        hours = DEFAULT_HOURS[s.day];
-    } else {
+    // Working hours for a given day, or null if the worker is off that day
+    const hoursFor = (day: string): { start: number; end: number } | null => {
+        if (availability.length === 0) return DEFAULT_HOURS[day];
         // A missing row or a zero-length window (startTime === endTime) means a day off
-        const row = availability.find((a) => a.day === s.day);
+        const row = availability.find((a) => a.day === day);
         const rowStart = row ? availabilityHour(row.startTime) : 0;
         const rowEnd = row ? availabilityHour(row.endTime) : 0;
-        hours = row && rowEnd > rowStart ? { start: rowStart, end: rowEnd } : null;
-    }
+        return row && rowEnd > rowStart ? { start: rowStart, end: rowEnd } : null;
+    };
 
+    const hours = hoursFor(s.day);
     if (!hours) {
         return `Not working on ${DAY_LABELS[s.day]}`;
     }
 
-    if (s.date !== e.date || s.minutes < hours.start * 60 || e.minutes > hours.end * 60) {
-        return `Works ${formatHour(hours.start)} - ${formatHour(hours.end)} on ${DAY_LABELS[s.day]}`;
+    const worksMessage = `Works ${formatHour(hours.start)} - ${formatHour(hours.end)} on ${DAY_LABELS[s.day]}`;
+
+    if (s.date === e.date) {
+        if (s.minutes < hours.start * 60 || e.minutes > hours.end * 60) return worksMessage;
+    } else {
+        // Booking runs past midnight: the first day must cover until midnight
+        // and the next day must cover from midnight until the booking ends.
+        const nextDay = DAYS[(DAYS.indexOf(s.day as (typeof DAYS)[number]) + 1) % 7];
+        const nextHours = hoursFor(nextDay);
+        const spansOneNight = new Date(end).getTime() - start.getTime() < 24 * 3600000;
+        if (s.minutes < hours.start * 60 || hours.end < 24) return worksMessage;
+        if (!spansOneNight || !nextHours) return `Not working on ${DAY_LABELS[nextDay]}`;
+        if (nextHours.start > 0 || e.minutes > nextHours.end * 60) {
+            return `Works ${formatHour(nextHours.start)} - ${formatHour(nextHours.end)} on ${DAY_LABELS[nextDay]}`;
+        }
     }
 
     const clash = assignments.find(
